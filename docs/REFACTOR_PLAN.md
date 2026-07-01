@@ -205,8 +205,31 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       Ayrıca `leftf` typo'su bulundu (`cards.json` içinde bir kartta `leftForm`/
       `leftFocus` yerine yanlışlıkla `"leftf"` yazılmış) — veri hatası, bu adımın
       kapsamı dışında, ileride JSON'da düzeltilecek.
-- [ ] `CountryData.cs` (+ `CountryCollection`, `List<>` tutarlılığı sağlanacak — bazı
-      koleksiyonlar array bazıları List, hepsi List'e sabitlenecek)
+      **NOT (isStoryCard — Katman 3'te karara bağlanacak):** `isStoryCard` origin/story
+      sistemiyle **ilgisiz** (madde 3'te silinen sistem farklı bir şey; `StoryManager`
+      da ayrı, o saf flag/variable hafızası). `cards_ucl.json` içinde incelendiğinde
+      `isStoryCard` değeri kartın `category`'siyle **%100 örtüşüyor** (481 kartın
+      tamamında istisnasız): `pre_match`/`locker_room`/`climax_chain` → hep false,
+      `match_action`/`victory`/`defeat`/`city_aftermath`/kategori yok (zincir dalı
+      kartları) → hep true. `chain_starter` kategorisi (ana `cards.json` destesinde
+      kullanılan, farklı bir kavram) ile de çakışmıyor — `cards_ucl.json` o kategori
+      adını hiç kullanmıyor. Şu an kodda `isStoryCard`'ı okuyan hiçbir yer yok; sadece
+      veri kaybolmasın diye modele eklendi. `UclFlowController` yazılırken (Katman 3)
+      karar verilecek: `isStoryCard` category'den bağımsız gerçek bir anlam taşıyacak
+      mı (örn. deste kurma mantığının zincir-dışı kartları filtrelemesi için), yoksa
+      redundant olduğu için silinip yerine category bazlı kontrol mü kullanılacak.
+- [x] `CountryData.cs` (+ `CountryCollection`, `List<>` tutarlılığı sağlanacak — bazı
+      koleksiyonlar array bazıları List, hepsi List'e sabitlenecek) — Tamamlandı:
+      `Assets/_Scripts/CountryData.cs` → `Assets/_Scripts/Data/CountryData.cs` (GUID
+      korunarak `git mv`), `Game.Data` namespace'ine taşındı, XML doc yorumları
+      eklendi, gereksiz `using UnityEngine` kaldırıldı. `CountryCollection.countries`
+      `CountryData[]` → `List<CountryData>` oldu (`CardCollection`'daki `List<CardData>`
+      önceliğiyle tutarlı; `JsonUtility` List alanını array gibi deserialize ediyor,
+      `CountryManager` değişmeden çalışıyor). `isPlayableOrigin` alanı kullanıcı
+      kararıyla **aynı isimle korundu** (JSON/scene kontratı bozulmasın diye); silinen
+      Origin/Story sistemiyle ilgisi olmadığını belirten bir XML doc notu eklendi.
+      `CountryManager.cs`'e `using Game.Data;` eklendi (tip adını açıkça kullanıyor);
+      `MainMenuManager.cs` dolaylı kullandığı için (`var country`) değişmedi.
 - [ ] `TeamData.cs` (+ `TeamCollection`)
 - [ ] `CrisisData.cs` (+ `CrisisCollection`) — `condition` enum + `costsLife` eklenecek
 - [ ] `EndingData.cs` (+ `EndingCollection`)
