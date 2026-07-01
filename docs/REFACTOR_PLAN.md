@@ -240,7 +240,26 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       hiçbir alan eklenmedi/çıkarılmadı. `TeamManager.cs`, `MainMenuManager.cs`,
       `TransferUIManager.cs`'e `using Game.Data;` eklendi (tip adını açıkça
       kullanıyorlar); `GameEvents.cs` ve `SeasonManager.cs` zaten sahipti, değişmedi.
-- [ ] `CrisisData.cs` (+ `CrisisCollection`) — `condition` enum + `costsLife` eklenecek
+- [x] `CrisisData.cs` (+ `CrisisCollection`) — Tamamlandı: `Assets/_Scripts/CrisisData.cs`
+      → `Assets/_Scripts/Data/CrisisData.cs` (GUID korunarak `git mv`), `Game.Data`
+      namespace'ine taşındı, bozuk Türkçe karakterli yorumlar (`YEN�`, `Ge�erli`) temiz
+      XML doc yorumlarıyla değiştirildi, gereksiz `using UnityEngine` kaldırıldı.
+      `condition` alanı `string` → yeni `CrisisCondition` enum (`Min`/`Max`, sıra
+      önemli — default `Min`) oldu; yeni `costsLife` (bool) alanı eklendi (JSON'da
+      vardı, modelde hiç yoktu, sessizce düşüyordu). `CrisisManager`/`CardManager`
+      zaten `using Game.Data;` içerdiği için **hiçbir consumer değişmedi**.
+      `minPhaseIndex`/`maxPhaseIndex` kullanıcı kararıyla **default'larıyla korundu**
+      (crisis.json'da karşılığı yok, kaldırma kararı Katman 3'e ertelendi, madde 5).
+      `GameConstants.CrisisConditions` (Game.Core, hiç kullanılmayan Min/Max string
+      sabitleri) kullanıcı kararıyla **şimdilik bırakıldı** — Katman 3'te
+      `CrisisManager` Min/Max seçim mantığına kavuşurken temizlenecek (enum tek doğru
+      kaynak olacak, string sabitler silinecek).
+      **Bilinen geçici durum (Katman 2'de çözülecek):** `CrisisManager` hâlâ
+      `JsonUtility` ile yüklüyor; `JsonUtility` enum'u isimden çözemediği için
+      `condition` şu an yüklenen krizlerde default `Min`'e düşüyor — runtime'da fark
+      yaratmıyor çünkü `condition` hiçbir yerde henüz okunmuyor (seçim mantığı hâlâ
+      yalnızca `targetStat`'a bakıyor, bkz. madde 5). Newtonsoft'a geçişle (Katman 2)
+      doğru dolacak. `costsLife` (bool) `JsonUtility` ile şimdiden doğru yükleniyor.
 - [ ] `EndingData.cs` (+ `EndingCollection`)
 - [ ] `SeasonSchedule.cs` (+ `ScheduleCollection`)
 - [ ] `SeasonHistoryData.cs` (StatsManager içinden çıkarılıp buraya taşınacak)
