@@ -56,3 +56,10 @@ eklenebilsin), flag/variable deposu (`StoryManager`) generic tutulur.
 
 Her faz sonunda: Unity Editor konsolunda derleme hatası kontrolü → temizse
 `git commit`. Commit mesajı hangi katman/dosya grubunun bittiğini belirtir.
+
+## Kesinti Toleransı
+
+Görev ortasında kesinti olabilir (kullanım limiti, bağlantı sorunu). Yeni bir
+oturuma başlarken, REFACTOR_PLAN.md'deki bir madde `[x]` görünse bile körü körüne
+güvenme — önce `git status` ve ilgili dosyanın gerçekten tam/derlenir olduğunu
+kontrol et. Şüpheli görünen bir dosyayı asla üzerine yazmadan önce içeriğini oku.

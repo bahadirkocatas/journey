@@ -172,8 +172,8 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 - [x] `GameEvents.cs`
 
 ### Katman 1 — `Game.Data` (saf veri modelleri) — **DEVAM EDİYOR**
-- [x] `RequirementData.cs`
-- [x] `ChoiceData.cs` — **NOT:** `isRisk` / `riskStat` / `riskMode` alan adları geçici;
+- [X] `RequirementData.cs`
+- [X] `ChoiceData.cs` — **NOT:** `isRisk` / `riskStat` / `riskMode` alan adları geçici;
       `cards_ucl.json`'daki gerçek risk/zar alan adlarıyla karşılaştırılıp
       kesinleştirilmeli (madde 5'e bkz).
 - [ ] `HiddenEffect.cs`
