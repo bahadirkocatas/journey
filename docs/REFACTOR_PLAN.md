@@ -230,7 +230,16 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       Origin/Story sistemiyle ilgisi olmadığını belirten bir XML doc notu eklendi.
       `CountryManager.cs`'e `using Game.Data;` eklendi (tip adını açıkça kullanıyor);
       `MainMenuManager.cs` dolaylı kullandığı için (`var country`) değişmedi.
-- [ ] `TeamData.cs` (+ `TeamCollection`)
+- [x] `TeamData.cs` (+ `TeamCollection`) — Tamamlandı: `Assets/_Scripts/TeamData.cs`
+      → `Assets/_Scripts/Data/TeamData.cs` (GUID korunarak `git mv`), `Game.Data`
+      namespace'ine taşındı, bozuk Türkçe karakterli yorumlar (`YEN�`, `kontrol�`)
+      temiz XML doc yorumlarıyla değiştirildi, gereksiz `using UnityEngine` kaldırıldı.
+      `TeamCollection.teams` `TeamData[]` → `List<TeamData>` oldu (`CountryCollection`/
+      `CardCollection` ile tutarlı; `TeamManager`'daki `new List<TeamData>(data.teams)`
+      değişmeden çalışıyor). Alan sayısı/adları `teams.json` ile birebir uyumlu,
+      hiçbir alan eklenmedi/çıkarılmadı. `TeamManager.cs`, `MainMenuManager.cs`,
+      `TransferUIManager.cs`'e `using Game.Data;` eklendi (tip adını açıkça
+      kullanıyorlar); `GameEvents.cs` ve `SeasonManager.cs` zaten sahipti, değişmedi.
 - [ ] `CrisisData.cs` (+ `CrisisCollection`) — `condition` enum + `costsLife` eklenecek
 - [ ] `EndingData.cs` (+ `EndingCollection`)
 - [ ] `SeasonSchedule.cs` (+ `ScheduleCollection`)

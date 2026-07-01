@@ -3,10 +3,11 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Data;
 
 /// <summary>
-/// Ana Menü Yöneticisi. 
-/// MVP MÝMARÝSÝ: Hiçbir bekleme yapmaz, diðer yöneticilerin veriyi Awake'te yüklediðini varsayar ve direkt çalýþýr.
+/// Ana Menï¿½ Yï¿½neticisi. 
+/// MVP Mï¿½MARï¿½Sï¿½: Hiï¿½bir bekleme yapmaz, diï¿½er yï¿½neticilerin veriyi Awake'te yï¿½klediï¿½ini varsayar ve direkt ï¿½alï¿½ï¿½ï¿½r.
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
@@ -14,22 +15,22 @@ public class MainMenuManager : MonoBehaviour
     public GameObject mainPanel;
     public GameObject gameUIPanel;
 
-    [Header("Sihirbaz Adýmlarý")]
+    [Header("Sihirbaz Adï¿½mlarï¿½")]
     public GameObject step1_Identity;
     public GameObject step3_Contract;
 
-    [Header("Ana Menü Butonlarý")]
+    [Header("Ana Menï¿½ Butonlarï¿½")]
     public Button continueButton;
     public Button newCareerButton;
     public Button quitButton;
 
-    [Header("--- ADIM 1: KÝMLÝK ---")]
+    [Header("--- ADIM 1: Kï¿½MLï¿½K ---")]
     public TMP_InputField nameInput;
     public Button openNationSelectorButton;
     public TextMeshProUGUI btnNationText;
     public Button step1NextButton;
 
-    [Header("Uyruk Seçim Paneli")]
+    [Header("Uyruk Seï¿½im Paneli")]
     public GameObject nationalitySelectionPanel;
     public Transform nationalityContent;
     public GameObject nationButtonPrefab;
@@ -38,15 +39,15 @@ public class MainMenuManager : MonoBehaviour
     public Transform contractContent;
     public GameObject contractButtonPrefab;
 
-    // --- VERÝ HAFIZASI ---
+    // --- VERï¿½ HAFIZASI ---
     private string selectedNationID = "";
     private List<string> nations = new List<string>();
     private List<string> nationIDs = new List<string>();
 
     private void Start()
     {
-        // BÜYÜK REFACTOR: Bekleme (WaitUntil) yamasýný SÝLDÝK! 
-        // Data Manager'lar (Team, Country) artýk iþini Awake'te bitirdiði için burasý þimþek gibi akar.
+        // Bï¿½Yï¿½K REFACTOR: Bekleme (WaitUntil) yamasï¿½nï¿½ Sï¿½LDï¿½K! 
+        // Data Manager'lar (Team, Country) artï¿½k iï¿½ini Awake'te bitirdiï¿½i iï¿½in burasï¿½ ï¿½imï¿½ek gibi akar.
         InitializeMenu();
     }
 
@@ -65,7 +66,7 @@ public class MainMenuManager : MonoBehaviour
         GenerateNationButtons();
         UpdateNationText();
 
-        // Kayýt Kontrolü
+        // Kayï¿½t Kontrolï¿½
         if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
         {
             if (continueButton)
@@ -79,7 +80,7 @@ public class MainMenuManager : MonoBehaviour
             if (continueButton) continueButton.gameObject.SetActive(false);
         }
 
-        // Yeni Kariyer (Kayýt Silme Ýþlemi)
+        // Yeni Kariyer (Kayï¿½t Silme ï¿½ï¿½lemi)
         newCareerButton.onClick.AddListener(() => {
             if (SaveManager.Instance != null) SaveManager.Instance.DeleteSave();
             StartCareerWizard();
@@ -107,7 +108,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // ========================================================================
-    // ARAYÜZ VE PANEL GEÇÝÞLERÝ
+    // ARAYï¿½Z VE PANEL GEï¿½ï¿½ï¿½LERï¿½
     // ========================================================================
     public void ShowMainPanel()
     {
@@ -125,7 +126,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // ========================================================================
-    // ADIM 1: KÝMLÝK (ÝSÝM VE ÜLKE SEÇÝMÝ)
+    // ADIM 1: Kï¿½MLï¿½K (ï¿½Sï¿½M VE ï¿½LKE SEï¿½ï¿½Mï¿½)
     // ========================================================================
     public void ShowStep1()
     {
@@ -160,12 +161,12 @@ public class MainMenuManager : MonoBehaviour
     {
         if (!nationalityContent || !nationButtonPrefab) return;
 
-        // Content içini temizle
+        // Content iï¿½ini temizle
         foreach (Transform child in nationalityContent) Destroy(child.gameObject);
 
         for (int i = 0; i < nations.Count; i++)
         {
-            // Prefab yarat, zorla aktif et ve scale deðerini 1 yap
+            // Prefab yarat, zorla aktif et ve scale deï¿½erini 1 yap
             GameObject btnObj = Instantiate(nationButtonPrefab, nationalityContent);
             btnObj.SetActive(true);
             btnObj.transform.localScale = Vector3.one;
@@ -174,7 +175,7 @@ public class MainMenuManager : MonoBehaviour
             TextMeshProUGUI btnText = btnObj.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText) btnText.text = nations[i];
 
-            // Bayrak Ýkonunu Ayarla
+            // Bayrak ï¿½konunu Ayarla
             Image[] images = btnObj.GetComponentsInChildren<Image>();
             foreach (var img in images)
             {
@@ -185,7 +186,7 @@ public class MainMenuManager : MonoBehaviour
                 }
             }
 
-            // Týklama Olayýný Baðla
+            // Tï¿½klama Olayï¿½nï¿½ Baï¿½la
             int capturedIndex = i;
             Button btn = btnObj.GetComponent<Button>() ?? btnObj.GetComponentInChildren<Button>();
 
@@ -204,7 +205,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // ========================================================================
-    // ADIM 2: KONTRAT SEÇÝMÝ
+    // ADIM 2: KONTRAT SEï¿½ï¿½Mï¿½
     // ========================================================================
     public void ShowStep3()
     {
@@ -221,7 +222,7 @@ public class MainMenuManager : MonoBehaviour
 
         if (TeamManager.Instance == null || TeamManager.Instance.allTeams == null) return;
 
-        // FÝLTRE: Sadece seçilen ülkenin 3. seviye takýmlarý
+        // Fï¿½LTRE: Sadece seï¿½ilen ï¿½lkenin 3. seviye takï¿½mlarï¿½
         List<TeamData> validTeams = TeamManager.Instance.allTeams
             .Where(t => t != null && t.countryID == selectedNationID && t.tier == 3)
             .OrderBy(x => Random.value)
@@ -259,11 +260,11 @@ public class MainMenuManager : MonoBehaviour
             }
             if (texts.Length > 1)
             {
-                texts[1].text = $"{team.budget}M€";
+                texts[1].text = $"{team.budget}Mï¿½";
                 texts[1].color = secondaryCol;
             }
 
-            // Týklama Baðlantýsý
+            // Tï¿½klama Baï¿½lantï¿½sï¿½
             string capturedTeamID = team.id;
             Button btn = btnObj.GetComponent<Button>() ?? btnObj.GetComponentInChildren<Button>();
 
@@ -290,7 +291,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // ========================================================================
-    // OYUN KAYIT ÝÞLEMLERÝ
+    // OYUN KAYIT ï¿½ï¿½LEMLERï¿½
     // ========================================================================
     public void ContinueCareer()
     {

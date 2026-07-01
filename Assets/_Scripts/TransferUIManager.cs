@@ -3,9 +3,10 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Data;
 
 /// <summary>
-/// Transfer paneli, teklif butonlarý ve UI etkileþimlerini yönetir. (Single Responsibility Principle)
+/// Transfer paneli, teklif butonlarï¿½ ve UI etkileï¿½imlerini yï¿½netir. (Single Responsibility Principle)
 /// </summary>
 public class TransferUIManager : MonoBehaviour
 {
@@ -43,13 +44,13 @@ public class TransferUIManager : MonoBehaviour
         string currentTeamID = TeamManager.Instance.currentTeam != null ? TeamManager.Instance.currentTeam.id : "";
         string currentNationID = StoryManager.Instance.GetString(GameKeys.FLAG_PLAYER_NATION);
 
-        // 1. Yerel Takýmlar (Kendi Liginden)
+        // 1. Yerel Takï¿½mlar (Kendi Liginden)
         var locals = TeamManager.Instance.allTeams
             .Where(t => t.id != currentTeamID && t.countryID == currentNationID && t.power >= minTargetPower && t.power <= maxTargetPower)
             .OrderBy(x => Random.value).Take(2).ToList();
         candidates.AddRange(locals);
 
-        // 2. Global Takýmlar (Baþarýlýysa)
+        // 2. Global Takï¿½mlar (Baï¿½arï¿½lï¿½ysa)
         if (score >= 75)
         {
             var globals = TeamManager.Instance.allTeams
@@ -61,7 +62,7 @@ public class TransferUIManager : MonoBehaviour
         // 3. Kalma Opsiyonu
         if (isOptional) CreateStayButton();
 
-        // 4. Transfer Butonlarýný Üret
+        // 4. Transfer Butonlarï¿½nï¿½ ï¿½ret
         foreach (var team in candidates) CreateTransferButton(team);
     }
 
@@ -81,7 +82,7 @@ public class TransferUIManager : MonoBehaviour
         if (texts.Length > 1)
         {
             int years = SeasonManager.Instance.CalculateContractDuration(SeasonManager.Instance.currentYear);
-            texts[1].text = $"{team.budget}M€ | {years} YIL";
+            texts[1].text = $"{team.budget}Mï¿½ | {years} YIL";
             texts[1].color = sec;
         }
 
@@ -95,7 +96,7 @@ public class TransferUIManager : MonoBehaviour
 
         TextMeshProUGUI[] texts = btnObj.GetComponentsInChildren<TextMeshProUGUI>();
         if (texts.Length > 0) texts[0].text = "TAKIMDA KAL";
-        if (texts.Length > 1) texts[1].text = "Sözleþme Yenile";
+        if (texts.Length > 1) texts[1].text = "Sï¿½zleï¿½me Yenile";
 
         btnObj.GetComponent<Button>().onClick.AddListener(() => SignContract(null));
     }
@@ -104,7 +105,7 @@ public class TransferUIManager : MonoBehaviour
     {
         if (transferPanel) transferPanel.SetActive(false);
 
-        // Sezon yöneticisine imzanýn atýldýðýný bildirir
+        // Sezon yï¿½neticisine imzanï¿½n atï¿½ldï¿½ï¿½ï¿½nï¿½ bildirir
         if (SeasonManager.Instance != null)
         {
             SeasonManager.Instance.OnContractSigned(newTeam);
