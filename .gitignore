@@ -1,0 +1,44 @@
+# ===== Unity =====
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Asset meta dosyaları, karşılık gelen asset ignore edilmediği sürece takip edilsin
+!/[Aa]ssets/**/*.meta
+
+# ===== Visual Studio / Rider / VS Code otomatik üretilen dosyalar =====
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# ===== Derlenmiş çıktılar =====
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# ===== Diğer =====
+sysinfo.txt
+crashlytics-build.properties
+
+# ===== İşletim sistemi dosyaları =====
+.DS_Store
+Thumbs.db

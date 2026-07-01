@@ -1,0 +1,95 @@
+{
+  "stories": [
+    {
+      "id": "story_street",
+      "title": "BETONUN FİLİZLERİ",
+      "description": "Varoşların kemik sesleri yankılanan beton sahalarında piştin. Akademilerin cilası yok üzerinde; tekniğin ham, kondisyonun eksik ama içinde sönmeyen bir öfke ve açlık var.",
+      "icon_path": "StoryBanners/street_kid_landscape",
+      "effects": [
+        { "type": "Resource", "key": "Form", "value": -10 },
+        { "type": "Resource", "key": "Fame", "value": 5 },
+        { "type": "Resource", "key": "Relations", "value": -15 },
+        { "type": "Resource", "key": "Money", "value": -10 },
+        { "type": "Resource", "key": "Focus", "value": 20 }
+      ],
+      "narrative_tags": [
+        "origin_street",
+        "street_baller_skills",
+        "raw_talent",
+        "intimidation_factor",
+        "volatile_temper",
+        "undisciplined_lifestyle",
+        "street_smart",
+        "knows_underworld",
+        "family_burden",
+        "loyalty_over_logic"
+      ]
+    },
+    {
+      "id": "story_legend_son",
+      "title": "GÖLGENİN PRENSİ",
+      "description": "Sen bir futbol ilahının varisisin. En elit akademilerde profesörler tarafından eğitildin. Ancak sırtındaki o soyadı, dünyanın en ağır forması. Ya efsaneyi aşacaksın ya da o devasa gölgenin altında ezileceksin.",
+      "icon_path": "StoryBanners/legend_son_landscape",
+      "effects": [
+        { "type": "Resource", "key": "Form", "value": 0 },
+        { "type": "Resource", "key": "Fame", "value": 20 },
+        { "type": "Resource", "key": "Relations", "value": 10 },
+        { "type": "Resource", "key": "Money", "value": 15 },
+        { "type": "Resource", "key": "Focus", "value": -20 }
+      ],
+      "narrative_tags": [
+        "origin_legend",
+        "polished_talent",
+        "tactical_discipline",
+        "immense_pressure",
+        "identity_crisis",
+        "golden_spoon",
+        "elite_network",
+        "locker_room_loner"
+      ]
+    },
+    {
+      "id": "story_academy",
+      "title": "AKADEMİ DEHASI",
+      "description": "Futbolu çamurlu arsalarda değil, taktik tahtalarında ve tablet ekranlarında öğrendin. Sahayı bir savaş alanı değil, bir satranç tahtası olarak görüyorsun. Fiziksel olarak belki en güçlüsü değilsin; omuz omuza mücadelede yıkılabilirsin. Ama senin silahın kasların değil, beynin.  ",
+      "icon_path": "StoryBanners/academy_genius_landscape",
+      "effects": [
+        { "type": "Resource", "key": "Form", "value": -10 },
+        { "type": "Resource", "key": "Fame", "value": 0 },
+        { "type": "Resource", "key": "Relations", "value": 20 },
+        { "type": "Resource", "key": "Money", "value": 0 },
+        { "type": "Resource", "key": "Focus", "value": 30 }
+      ],
+      "narrative_tags": [
+        "origin_academy",
+        "tactical_genius",
+        "spatial_awareness",
+        "video_analyst",
+        "set_piece_architect",
+        "fast_learner",
+        "glass_body",
+        "physically_weak",
+        "locker_room_nerd",
+        "teacher_pet",
+        "contract_lawyer",
+        "media_boring"
+      ]
+    },
+    {
+      "id": "story_none",
+      "title": "HİKAYESİZ BAŞLANGIÇ",
+      "description": "Geçmişin temiz bir sayfa. Ne seni aşağı çeken bir yoksulluk ne de omuzlarına yük bindiren bir soyadı var. Avantajın yok ama dezavantajın da yok. Kendi efsaneni, hiçbir önyargı olmadan sıfırdan yazacaksın. Kaderinin kalemi sadece senin elinde.",
+      "icon_path": "StoryBanners/no_story_landscape",
+      "effects": [
+        { "type": "Resource", "key": "Form", "value": 0 },
+        { "type": "Resource", "key": "Fame", "value": 0 },
+        { "type": "Resource", "key": "Relations", "value": 0 },
+        { "type": "Resource", "key": "Money", "value": 0 },
+        { "type": "Resource", "key": "Focus", "value": 0 }
+      ],
+      "narrative_tags": [
+        "origin_neutral"
+      ]
+    }
+  ]
+}

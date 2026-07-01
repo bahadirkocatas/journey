@@ -1,0 +1,88 @@
+{
+  "countries": [
+    {
+      "id": "turkey",
+      "name": "Türkiye",
+      "flagIconName": "turkey",
+      "primaryColor": "#E30A17",
+      "secondaryColor": "#FFFFFF",
+      "worldCupsWon": 0,
+      "leagueTier": 2,
+      "leagueQualityScore": 70,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "greece", 
+      "playStyle": "Passion", 
+      "winHeadline": "ASRA BEDEL ZAFER! TÜRKİYE DÜNYANIN EN BÜYÜĞÜ!"
+    },
+    {
+      "id": "england",
+      "name": "İngiltere",
+      "flagIconName": "england",
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#CE1124",
+      "worldCupsWon": 1,
+      "leagueTier": 1,
+      "leagueQualityScore": 100,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "germany",
+      "playStyle": "Physical",
+      "winHeadline": "IT'S COMING HOME! FUTBOL EVİNE DÖNDÜ!"
+    },
+    {
+      "id": "spain",
+      "name": "İspanya",
+      "flagIconName": "spain",
+      "primaryColor": "#AA151B",
+      "secondaryColor": "#F1BF00",
+      "worldCupsWon": 1,
+      "leagueTier": 1,
+      "leagueQualityScore": 96,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "france",
+      "playStyle": "Technique",
+      "winHeadline": "MATADORLAR DÜNYAYI DİZE GETİRDİ!"
+    },
+    {
+      "id": "germany",
+      "name": "Almanya",
+      "flagIconName": "germany",
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#000000",
+      "worldCupsWon": 4,
+      "leagueTier": 1,
+      "leagueQualityScore": 94,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "england",
+      "playStyle": "Discipline",
+      "winHeadline": "PANZERLER EZDİ GEÇTİ! 5. YILDIZ GELDİ!"
+    },
+    {
+      "id": "italy",
+      "name": "İtalya",
+      "flagIconName": "italy",
+      "primaryColor": "#0064AA",
+      "secondaryColor": "#FFFFFF",
+      "worldCupsWon": 4,
+      "leagueTier": 1,
+      "leagueQualityScore": 90,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "france",
+      "playStyle": "Defense",
+      "winHeadline": "AZZURRI EFSANESİ! DÜNYA TEKRAR MAVİYE BOYANDI!"
+    },
+    {
+      "id": "france",
+      "name": "Fransa",
+      "flagIconName": "france",
+      "primaryColor": "#0055A4",
+      "secondaryColor": "#EF4135",
+      "worldCupsWon": 2,
+      "leagueTier": 1,
+      "leagueQualityScore": 88,
+      "isPlayableOrigin": true,
+      "rivalCountryID": "italy",
+      "playStyle": "Athletic",
+      "winHeadline": "HOROZLAR ZİRVEDE! VIVE LA FRANCE!"
+    }
+  ]
+}

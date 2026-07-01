@@ -1,0 +1,20 @@
+{
+  "endings": [
+    {
+      "id": "ending_lives_zero",
+      "triggerType": "LivesZero",
+      "title": "KARİYERİN SONU",
+      "description": "Şansını fazla zorladın. Hataların birikti ve artık geri dönüşü olmayan noktadasın. Futbol dünyası acımasızdır; düşeni kimse kaldırmaz.",
+      "iconPath": "EndingIcons/game_over",
+      "buttonText": "VEDA ET"
+    },
+    {
+      "id": "ending_retirement",
+      "triggerType": "Retirement",
+      "title": "EFSANEVİ VEDA",
+      "description": "Yıllar su gibi aktı. Bedenin artık eskisi gibi değil ama ismin stadyumlarda yankılanmaya devam edecek. Kramponlarını asma vakti geldi.",
+      "iconPath": "EndingIcons/retirement",
+      "buttonText": "JÜBİLE YAP"
+    }
+  ]
+}

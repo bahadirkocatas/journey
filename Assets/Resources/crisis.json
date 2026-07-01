@@ -1,0 +1,164 @@
+{
+  "crises": [
+    {
+      "id": "crisis_form_min_injury",
+      "targetStat": "Form",
+      "condition": "Min",
+      "title": "ÇAPRAZ BAĞLAR KOPTU",
+      "description": "Antrenmanda ters bir basış ve o korkunç 'çat' sesi... Dizlerin vücudunun ağırlığını taşıyamadı. Doktorlar ameliyatın şart olduğunu ve sezonu kapattığını söylüyor.",
+      "iconPath": "CrisisIcons/ambulance",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_form_min_virus",
+      "targetStat": "Form",
+      "condition": "Min",
+      "title": "GİZEMLİ VİRÜS",
+      "description": "Önce basit bir grip sandın ama günlerdir yataktan kalkamıyorsun. Doktorlar vücut direncinin tamamen çöktüğünü söylüyor. Kas kütlenin %10'unu kaybettin.",
+      "iconPath": "CrisisIcons/virus",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_form_min_fatigue",
+      "targetStat": "Form",
+      "condition": "Min",
+      "title": "SAHADA BAYILMA",
+      "description": "Maçın 70. dakikasında gözlerin karardı ve yere yığıldın. Aşırı yorgunluk kalbini zorladı. Kulüp doktoru 'Dinlenmezse bir daha futbol oynayamaz' raporu verdi.",
+      "iconPath": "CrisisIcons/tired",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_form_max_doping",
+      "targetStat": "Form",
+      "condition": "Max",
+      "title": "DOPİNG ŞÜPHESİ",
+      "description": "Sahada o kadar hızlı, o kadar güçlüsün ki kimse bunun doğal olduğuna inanmıyor. Maç sonu numunende şüpheli madde bulundu. Soruşturma bitene kadar lisansın askıda.",
+      "iconPath": "CrisisIcons/syringe",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_form_max_burnout",
+      "targetStat": "Form",
+      "condition": "Max",
+      "title": "KAS İFLASI",
+      "description": "Vücudunu makine gibi kullandın ama o bir makine değil. Aşırı yüklenme (Overtraining) yüzünden kas liflerin iflas etti. Formun zirvesindeyken dibi gördün.",
+      "iconPath": "CrisisIcons/muscle_tear",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_form_max_rival_report",
+      "targetStat": "Form",
+      "condition": "Max",
+      "title": "FEDERASYON BASKINI",
+      "description": "Rakip takımlar 'Bu adamda insan dışı bir güç var' diyerek seni ihbar etti. Tesislerine sabah baskını yapıldı. Kan değerlerin incelenmek üzere alındı.",
+      "iconPath": "CrisisIcons/investigation",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_money_min_bankrupt",
+      "targetStat": "Money",
+      "condition": "Min",
+      "title": "İFLAS BAYRAĞI",
+      "description": "Kapına dayanan alacaklılar artık kulüp binasına kadar geldi. Yönetim 'Bu rezilliği çekemeyiz' diyerek sözleşmeni tek taraflı feshetti.",
+      "iconPath": "CrisisIcons/broke",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_money_min_loan_shark",
+      "targetStat": "Money",
+      "condition": "Min",
+      "title": "TEFECİ BELASI",
+      "description": "Borçlarını kapatmak için yanlış insanlardan para aldın. Şimdi seni tehdit ediyorlar. Can güvenliğin için şehri terk etmek zorundasın.",
+      "iconPath": "CrisisIcons/shady_deal",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_money_max_mafia",
+      "targetStat": "Money",
+      "condition": "Max",
+      "title": "MAFYA HEDEFİ",
+      "description": "Servetin yer altı dünyasının iştahını kabarttı. Bir gece kulübü çıkışında kaçırıldın. Özgürlüğün için tüm paranı fidye olarak istiyorlar.",
+      "iconPath": "CrisisIcons/kidnapped",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_money_max_tax",
+      "targetStat": "Money",
+      "condition": "Max",
+      "title": "VERGİ KAÇAKÇILIĞI",
+      "description": "Hesabındaki ani artış maliyenin radarında. Tutuklanmamak için çok büyük bir ceza ödemen ve kamuoyundan özür dilemen gerekiyor.",
+      "iconPath": "CrisisIcons/tax_police",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_fame_min_forgotten",
+      "targetStat": "Fame",
+      "condition": "Min",
+      "title": "SİLİNEN YILDIZ",
+      "description": "Tribünler adını hatırlamıyor, forma satışların durdu. Sponsorlar çekildi. Kulüp, 'Marka değerin yok' diyerek seni serbest bıraktı.",
+      "iconPath": "CrisisIcons/lonely",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_fame_max_scandal",
+      "targetStat": "Fame",
+      "condition": "Max",
+      "title": "LİNÇ KAMPANYASI",
+      "description": "O kadar göz önündeydin ki en ufak hatan dev bir skandala dönüştü. Sosyal medyada linç ediliyorsun. Kulüp baskıya dayanamayıp seni kadro dışı bıraktı.",
+      "iconPath": "CrisisIcons/paparazzi",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_relations_min_fired",
+      "targetStat": "Relations",
+      "condition": "Min",
+      "title": "KAPI ÖNÜNDESİN",
+      "description": "Hoca seni sildi, takım arkadaşların selamını almıyor. Soyunma odasında istenmeyen adamsın. Kulüp daha fazla huzursuzluk istemediği için seni gönderdi.",
+      "iconPath": "CrisisIcons/fired",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_relations_max_conspiracy",
+      "targetStat": "Relations",
+      "condition": "Max",
+      "title": "GRUPLAŞMA İDDİASI",
+      "description": "Takım içinde o kadar güçlüsün ki hoca seni 'Çete Lideri' olmakla ve otoriteyi sarsmakla suçladı. Yönetim hocanın tarafını tuttu.",
+      "iconPath": "CrisisIcons/conspiracy",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_focus_min_burnout",
+      "targetStat": "Focus",
+      "condition": "Min",
+      "title": "TÜKENMİŞLİK SENDROMU",
+      "description": "Yataktan çıkacak gücün, topa vuracak isteğin kalmadı. Futbolu, hayatı, her şeyi boş verdin. Klinik tedavi görmen gerekiyor.",
+      "iconPath": "CrisisIcons/depression",
+      "costsLife": true,
+      "resetValue": 50
+    },
+    {
+      "id": "crisis_focus_max_hubris",
+      "targetStat": "Focus",
+      "condition": "Max",
+      "title": "KİBİR ZEHİRLENMESİ",
+      "description": "Kendini takımdan büyük görüyorsun. Pas vermiyor, hocayı dinlemiyorsun. Bu ego seni bitirdi. Kimse seninle oynamak istemiyor.",
+      "iconPath": "CrisisIcons/ego_king",
+      "costsLife": true,
+      "resetValue": 50
+    }
+  ]
+}
