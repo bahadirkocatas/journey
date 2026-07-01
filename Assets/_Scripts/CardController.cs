@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using Game.Data;
 
 public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {

@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using Game.Data;
 
 public enum ThemeType { Normal, Crisis, GameOver }
 
@@ -74,16 +75,16 @@ public class CardUIHandler : MonoBehaviour
         scenarioText.text = GetLocalizedText(card.scenarioText, CardConstants.SuffixDesc);
 
         // Sağ seçenek
-        if (isRightLocked && !string.IsNullOrEmpty(card.rightLockedText))
-            rightChoiceTMP.text = "🔒 " + GetLocalizedText(card.rightLockedText, CardConstants.SuffixRight);
+        if (isRightLocked && !string.IsNullOrEmpty(card.right.lockedText))
+            rightChoiceTMP.text = "🔒 " + GetLocalizedText(card.right.lockedText, CardConstants.SuffixRight);
         else
-            rightChoiceTMP.text = GetLocalizedText(card.rightChoiceText, CardConstants.SuffixRight);
+            rightChoiceTMP.text = GetLocalizedText(card.right.choiceText, CardConstants.SuffixRight);
 
         // Sol seçenek
-        if (isLeftLocked && !string.IsNullOrEmpty(card.leftLockedText))
-            leftChoiceTMP.text = "🔒 " + GetLocalizedText(card.leftLockedText, CardConstants.SuffixLeft);
+        if (isLeftLocked && !string.IsNullOrEmpty(card.left.lockedText))
+            leftChoiceTMP.text = "🔒 " + GetLocalizedText(card.left.lockedText, CardConstants.SuffixLeft);
         else
-            leftChoiceTMP.text = GetLocalizedText(card.leftChoiceText, CardConstants.SuffixLeft);
+            leftChoiceTMP.text = GetLocalizedText(card.left.choiceText, CardConstants.SuffixLeft);
 
         // Karakter görseli
         SetCharacterImage(card.characterImageName);
@@ -139,11 +140,11 @@ public class CardUIHandler : MonoBehaviour
 
     private string BuildPreviewText(CardData card, bool isRight)
     {
-        int dForm = isRight ? card.rightForm : card.leftForm;
-        int dMoney = isRight ? card.rightMoney : card.leftMoney;
-        int dFame = isRight ? card.rightFame : card.leftFame;
-        int dRel = isRight ? card.rightRelations : card.leftRelations;
-        int dFoc = isRight ? card.rightFocus : card.leftFocus;
+        int dForm = isRight ? card.right.form : card.left.form;
+        int dMoney = isRight ? card.right.money : card.left.money;
+        int dFame = isRight ? card.right.fame : card.left.fame;
+        int dRel = isRight ? card.right.relations : card.left.relations;
+        int dFoc = isRight ? card.right.focus : card.left.focus;
 
         bool hasEffect = (dForm != 0 || dMoney != 0 || dFame != 0 || dRel != 0 || dFoc != 0);
         if (!hasEffect) return "";
@@ -162,11 +163,11 @@ public class CardUIHandler : MonoBehaviour
     {
         if (GameManager.Instance == null) return;
 
-        bool showForm = isRight ? card.rightForm != 0 : card.leftForm != 0;
-        bool showMoney = isRight ? card.rightMoney != 0 : card.leftMoney != 0;
-        bool showFame = isRight ? card.rightFame != 0 : card.leftFame != 0;
-        bool showRel = isRight ? card.rightRelations != 0 : card.leftRelations != 0;
-        bool showFoc = isRight ? card.rightFocus != 0 : card.leftFocus != 0;
+        bool showForm = isRight ? card.right.form != 0 : card.left.form != 0;
+        bool showMoney = isRight ? card.right.money != 0 : card.left.money != 0;
+        bool showFame = isRight ? card.right.fame != 0 : card.left.fame != 0;
+        bool showRel = isRight ? card.right.relations != 0 : card.left.relations != 0;
+        bool showFoc = isRight ? card.right.focus != 0 : card.left.focus != 0;
 
         SetGameObjectActive(GameManager.Instance.displayForm, showForm);
         SetGameObjectActive(GameManager.Instance.displayMoney, showMoney);

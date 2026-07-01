@@ -25,7 +25,9 @@ namespace Game.Data
         public string failureCardID;  // Başarısızlık → bu karta geç
 
         // ── Risk / Zar (BG3 tarzı) ────────────────────────────────
-        // NOT: Bu alanların isimleri cards_ucl.json'a göre kesinleştirilecek (bkz. sohbet).
+        // Alan adları cards.json / cards_ucl.json ile doğrulandı: JSON'daki
+        // isRightRisk/isLeftRisk, rightRiskStat/leftRiskStat, rightRiskMode/leftRiskMode
+        // önekleri CardData'nın ayrı right/left tutmasıyla zaten kalkıyor.
         public bool isRisk;     // Bu seçim bir zar atışı tetikler mi?
         public string riskStat; // Zar bonusu hangi statdan gelir? ("Form"/"Focus"/"Fame"/"Relations")
         public string riskMode; // "high" (yüksek stat avantajlı) | "low" (düşük stat avantajlı)

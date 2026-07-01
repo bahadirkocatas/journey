@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Game.Data;
 
 public class CardRegistry
 {
@@ -19,7 +20,7 @@ public class CardRegistry
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[CardRegistry] JSON hatasý: {e.Message}");
+            Debug.LogError($"[CardRegistry] JSON hatasï¿½: {e.Message}");
         }
     }
 
@@ -45,7 +46,7 @@ public class CardRegistry
 
     public List<CardData> GetValidCards(RequirementService reqService)
     {
-        // Performans için cache key kullanabiliriz
+        // Performans iï¿½in cache key kullanabiliriz
         return AllCards.Where(c => reqService.CheckRequirements(c.requirements, $"card_{c.id}")).ToList();
     }
 }

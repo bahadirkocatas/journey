@@ -88,9 +88,13 @@ uyuşmayan noktalar:
   eklenecekse eklensin, eklenmeyecekse koddan temizlensin (kullanıcıyla teyit
   edilecek, şimdilik default davranış korunuyor).
 - **UCL risk/zar sistemi:** `cards_ucl.json`'da risk/zar mekaniğine dair alanlar var
-  (`isRightRisk` tarzı — kesin alan adları JSON'dan doğrulanacak). `DiceManager` bu
-  akışa **hiç bağlı değil** — ölü değil, sadece bağlantısı kopuk. UCL finali akışında
-  gerçek zar atışına dönüştürülecek (bkz. madde 9, Katman 3).
+  (`isRightRisk/isLeftRisk`, `rightRiskStat/leftRiskStat`, `rightRiskMode/leftRiskMode`
+  — alan adları doğrulandı, `ChoiceData.isRisk/riskStat/riskMode` ile birebir eşleşiyor).
+  `DiceManager` bu akışa **hiç bağlı değil** — ölü değil, sadece bağlantısı kopuk. UCL
+  finali akışında gerçek zar atışına dönüştürülecek (bkz. madde 9, Katman 3).
+- **`cards.json` veri hatası (`leftf` typo):** Bir kartta `leftForm`/`leftFocus` yerine
+  yanlışlıkla `"leftf": 15` yazılmış. Kod tarafında karşılığı yok, sessizce düşüyor.
+  CardData rewrite'ının kapsamı dışında; JSON düzenlenirken düzeltilecek.
 
 ---
 
@@ -173,15 +177,34 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 
 ### Katman 1 — `Game.Data` (saf veri modelleri) — **DEVAM EDİYOR**
 - [X] `RequirementData.cs`
-- [X] `ChoiceData.cs` — **NOT:** `isRisk` / `riskStat` / `riskMode` alan adları geçici;
-      `cards_ucl.json`'daki gerçek risk/zar alan adlarıyla karşılaştırılıp
-      kesinleştirilmeli (madde 5'e bkz).
+- [X] `ChoiceData.cs` — risk alan adları (`isRisk`/`riskStat`/`riskMode`) `cards.json` ve
+      `cards_ucl.json` ile karşılaştırıldı: JSON'daki `isRightRisk/isLeftRisk`,
+      `rightRiskStat/leftRiskStat`, `rightRiskMode/leftRiskMode` önekleri CardData'nın
+      ayrı right/left tutmasıyla zaten kalkıyor — **birebir eşleşiyor, değişiklik
+      yapılmadı**.
 - [x] `HiddenEffect.cs`
 - [x] `StatEffect.cs`
-- [ ] `CardData.cs` (ChoiceData kullanacak şekilde; `CardPool`, `CardCollection` dahil)
-      — **NOT:** CardData.cs yeniden yazılırken kendi içindeki eski (global namespace)
-      HiddenEffect ve StatEffect tanımları SİLİNECEK, Game.Data.HiddenEffect /
-      Game.Data.StatEffect kullanılacak — duplike tip bırakılmayacak.
+- [x] `CardData.cs` (ChoiceData kullanacak şekilde; `CardPool`, `CardCollection` dahil)
+      — Tamamlandı: `Assets/_Scripts/Data/CardData.cs`'e taşındı, nested `right`/`left`
+      (ChoiceData) kullanıyor, global namespace'teki eski `HiddenEffect`/`StatEffect`
+      tanımları silindi (artık `Game.Data.HiddenEffect`/`Game.Data.StatEffect`
+      kullanılıyor — duplike tip yok). JSON'da bulunan `isStoryCard` alanı eklendi
+      (286× kullanılıyor, UCL/zincir kartları için). `addTraitRight/addTraitLeft`
+      (trait sistemi, MVP-sonrası) bilinçli olarak eklenmedi.
+      Bu değişiklik CardData'yı adıyla anan/flat alanlarına erişen 8 dosyayı mekanik
+      olarak nested şekle uyarladı (derin/işlevsel rewrite değil, sadece derleme
+      uyumu): `CardManager`, `CardUIHandler`, `GameManager`, `StatsManager`,
+      `StoryManager`, `SeasonManager`, `UCLManager`, `CrisisManager`/`CardController`/
+      `CardDeckBuilder`/`CardRegistry` (sadece `using Game.Data;` eklendi).
+      **Bilinen geçici durum:** `CardRegistry` hâlâ `JsonUtility` ile yüklüyor; flat
+      JSON alanlarını nested `right`/`left`'e eşleyemediği için JSON'dan gelen kartlar
+      şu an etkisiz (stat etkisi 0) yükleniyor — NRE atmıyor çünkü `CardData.right/left`
+      default olarak boş `ChoiceData()` ile başlatılıyor. Gerçek eşleme Katman 2'de
+      Newtonsoft + custom `JsonConverter` ile gelecek. Synthetic kartlar (kriz/gameover/
+      UCL) kodda kurulduğu için zaten doğru çalışıyor.
+      Ayrıca `leftf` typo'su bulundu (`cards.json` içinde bir kartta `leftForm`/
+      `leftFocus` yerine yanlışlıkla `"leftf"` yazılmış) — veri hatası, bu adımın
+      kapsamı dışında, ileride JSON'da düzeltilecek.
 - [ ] `CountryData.cs` (+ `CountryCollection`, `List<>` tutarlılığı sağlanacak — bazı
       koleksiyonlar array bazıları List, hepsi List'e sabitlenecek)
 - [ ] `TeamData.cs` (+ `TeamCollection`)

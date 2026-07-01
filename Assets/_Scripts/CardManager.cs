@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Game.Data;
 
 public class CardManager : MonoBehaviour
 {
@@ -130,8 +131,8 @@ public class CardManager : MonoBehaviour
     private void SetCurrentCard(CardData card)
     {
         currentCard = card;
-        isRightLocked = !_reqService.CheckRequirements(card.rightRequirements, $"right_{card.id}");
-        isLeftLocked = !_reqService.CheckRequirements(card.leftRequirements, $"left_{card.id}");
+        isRightLocked = !_reqService.CheckRequirements(card.right.requirements, $"right_{card.id}");
+        isLeftLocked = !_reqService.CheckRequirements(card.left.requirements, $"left_{card.id}");
 
         if (_uiHandler != null)
             _uiHandler.UpdateCardDisplay(card, isRightLocked, isLeftLocked);
@@ -162,8 +163,8 @@ public class CardManager : MonoBehaviour
             id = "CRISIS_CARD",
             scenarioText = $"<color=#FF5555>KRİZ: {crisis.title}</color>\n\n{crisis.description}",
             characterImageName = crisis.iconPath,
-            rightChoiceText = "BEDELİ ÖDE",
-            leftChoiceText = "BEDELİ ÖDE"
+            right = new ChoiceData { choiceText = "BEDELİ ÖDE" },
+            left = new ChoiceData { choiceText = "BEDELİ ÖDE" }
         };
         SetCurrentCard(c);
     }
@@ -189,8 +190,8 @@ public class CardManager : MonoBehaviour
             id = "GAMEOVER_CARD",
             scenarioText = $"<color=#888888>SON:</color> {ending.title}\n\n{ending.description}",
             characterImageName = ending.iconPath,
-            rightChoiceText = ending.buttonText,
-            leftChoiceText = ending.buttonText
+            right = new ChoiceData { choiceText = ending.buttonText },
+            left = new ChoiceData { choiceText = ending.buttonText }
         };
         SetCurrentCard(c);
     }
@@ -208,7 +209,7 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        string nextID = isRight ? processedCard.rightSuccessCardID : processedCard.leftSuccessCardID;
+        string nextID = isRight ? processedCard.right.successCardID : processedCard.left.successCardID;
         if (!string.IsNullOrEmpty(nextID))
         {
             QueueNextCard(nextID);

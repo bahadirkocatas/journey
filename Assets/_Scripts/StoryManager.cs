@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Game.Data;
 
 /// <summary>
 /// Oyunun salt hafıza merkezi. Bayrakları (Flags) ve Değişkenleri (Variables) tutar.
@@ -53,20 +54,20 @@ public class StoryManager : MonoBehaviour
         // Seçime göre gizli etkileri ve bayrakları uygula
         if (isRight)
         {
-            if (!string.IsNullOrEmpty(card.addFlagRight)) AddFlag(card.addFlagRight);
+            if (!string.IsNullOrEmpty(card.right.addFlag)) AddFlag(card.right.addFlag);
 
-            if (card.rightHiddenEffects != null)
+            if (card.right.hiddenEffects != null)
             {
-                foreach (var eff in card.rightHiddenEffects) ModifyVariable(eff.variableName, eff.changeAmount);
+                foreach (var eff in card.right.hiddenEffects) ModifyVariable(eff.variableName, eff.changeAmount);
             }
         }
         else
         {
-            if (!string.IsNullOrEmpty(card.addFlagLeft)) AddFlag(card.addFlagLeft);
+            if (!string.IsNullOrEmpty(card.left.addFlag)) AddFlag(card.left.addFlag);
 
-            if (card.leftHiddenEffects != null)
+            if (card.left.hiddenEffects != null)
             {
-                foreach (var eff in card.leftHiddenEffects) ModifyVariable(eff.variableName, eff.changeAmount);
+                foreach (var eff in card.left.hiddenEffects) ModifyVariable(eff.variableName, eff.changeAmount);
             }
         }
     }

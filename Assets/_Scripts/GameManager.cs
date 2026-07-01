@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using Game.Data;
 
 // Endüstri Standardı Enum (Zaten mevcut, tekrar tanımlamıyoruz)
 public enum StatType { Form, Money, Fame, Relations, Focus }
@@ -96,19 +97,19 @@ public class GameManager : MonoBehaviour
         // Değişimleri uygula
         if (isRight)
         {
-            form += card.rightForm;
-            money += card.rightMoney;
-            fame += card.rightFame;
-            relations += card.rightRelations;
-            focus += card.rightFocus;
+            form += card.right.form;
+            money += card.right.money;
+            fame += card.right.fame;
+            relations += card.right.relations;
+            focus += card.right.focus;
         }
         else
         {
-            form += card.leftForm;
-            money += card.leftMoney;
-            fame += card.leftFame;
-            relations += card.leftRelations;
-            focus += card.leftFocus;
+            form += card.left.form;
+            money += card.left.money;
+            fame += card.left.fame;
+            relations += card.left.relations;
+            focus += card.left.focus;
         }
 
         // Sınırları kontrol et ve Krizleri tetikle

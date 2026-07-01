@@ -2,6 +2,7 @@
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Data;
 
 public class SeasonManager : MonoBehaviour
 {
@@ -137,8 +138,8 @@ public class SeasonManager : MonoBehaviour
                     category = GameKeys.CAT_UCL_GROUP,
                     scenarioText = "LOK_UCL_ELIMINATED",
                     characterImageName = "ucl_atmosphere",
-                    rightChoiceText = "LOK_CONTINUE",
-                    leftChoiceText = "LOK_CONTINUE"
+                    right = new ChoiceData { choiceText = "LOK_CONTINUE" },
+                    left = new ChoiceData { choiceText = "LOK_CONTINUE" }
                 };
                 CardManager.Instance?.InjectMilestoneCards(new List<CardData> { failCard }, true);
                 StoryManager.Instance.AddFlag(GameKeys.FLAG_UCL_ELIMINATION_SHOWN);
@@ -174,16 +175,22 @@ public class SeasonManager : MonoBehaviour
                     category = GameKeys.CAT_UCL_GROUP,
                     scenarioText = $"Şampiyonlar Ligi eleme maçındasın. Grup {i}/2.",
                     characterImageName = "ucl_atmosphere",
-                    rightChoiceText = "Takım İçin Savaş",
-                    rightRelations = 10,
-                    rightFocus = -5,
-                    rightForm = -10,
-                    rightHiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } },
-                    leftChoiceText = "Bireysel Oyna",
-                    leftFame = 10,
-                    leftRelations = -10,
-                    leftForm = -10,
-                    leftHiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } }
+                    right = new ChoiceData
+                    {
+                        choiceText = "Takım İçin Savaş",
+                        relations = 10,
+                        focus = -5,
+                        form = -10,
+                        hiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } }
+                    },
+                    left = new ChoiceData
+                    {
+                        choiceText = "Bireysel Oyna",
+                        fame = 10,
+                        relations = -10,
+                        form = -10,
+                        hiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } }
+                    }
                 });
             }
             CardManager.Instance.InjectMilestoneCards(uclCards, false);

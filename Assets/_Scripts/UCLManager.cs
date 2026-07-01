@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Data;
 
 /// <summary>
 /// Şampiyonlar Ligi Finali senaryosunu ve maç akışını yönetir.
@@ -117,8 +118,8 @@ public class UCLManager : MonoBehaviour
             category = "ucl_system",
             scenarioText = "LOK_UCL_FINAL_CONCLUDED",
             characterImageName = "ucl_atmosphere",
-            rightChoiceText = "LOK_CONTINUE",
-            leftChoiceText = "LOK_CONTINUE"
+            right = new ChoiceData { choiceText = "LOK_CONTINUE" },
+            left = new ChoiceData { choiceText = "LOK_CONTINUE" }
         };
         finalChain.Add(endNode);
 

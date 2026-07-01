@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Game.Data;
 
 public class CardDeckBuilder
 {
@@ -32,7 +33,7 @@ public class CardDeckBuilder
         var result = new List<CardData>();
 
         if (startCards.Any()) result.Add(startCards.First());
-        if (endCards.Any()) result.Add(endCards.First()); // Geçici, sona ekleyeceðiz
+        if (endCards.Any()) result.Add(endCards.First()); // Geï¿½ici, sona ekleyeceï¿½iz
 
         var fillerPool = new List<CardData>();
         fillerPool.AddRange(chainCards.Take(maxChains));

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Game.Data;
 
 [System.Serializable]
 public class SeasonHistoryData
@@ -74,7 +75,7 @@ public class StatsManager : MonoBehaviour
     private void HandleCardResolved(CardData card, bool isRight)
     {
         if (card == null) return;
-        var effect = isRight ? card.rightStatEffect : card.leftStatEffect;
+        var effect = isRight ? card.right.statEffect : card.left.statEffect;
         if (effect != null && (effect.goals > 0 || effect.assists > 0 || effect.matchRating > 0))
         {
             AddMatchStats(effect.goals, effect.assists, effect.matchRating);
