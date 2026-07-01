@@ -152,7 +152,7 @@ uyuşmayan noktalar:
 
 ### KORUNAN dosyalar (cilalanarak yeniden yazılacak, fikir olarak doğru)
 CardData, RequirementData, HiddenEffect, StatEffect, CountryData, TeamData, CrisisData,
-EndingData, SeasonScheduleModels, RequirementService, CardRegistry, CardDeckBuilder,
+EndingData, SeasonSchedule, RequirementService, CardRegistry, CardDeckBuilder,
 MatchSimulator, CardSwipeConfig, MatchSimulationConfig, SeasonCalendar, LifeSystem,
 GameManager, CardManager, CrisisManager, CountryManager, TeamManager, StatsManager,
 StoryManager, EndingManager, DiceManager (UI katmanına indirgenmiş hali), SaveManager,
@@ -271,7 +271,19 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       pitfall'ı (bkz. `CrisisData.condition`'daki geçici bozulma) hiç yaşanmadı.
       `EndingManager.cs`'e `using Game.Data;` eklendi (tip adlarını doğrudan
       kullanıyor); `CardManager.cs` zaten `using Game.Data;` içerdiği için değişmedi.
-- [ ] `SeasonSchedule.cs` (+ `ScheduleCollection`)
+- [x] `SeasonSchedule.cs` (+ `ScheduleCollection`) — Tamamlandı: `Assets/_Scripts/
+      SeasonScheduleModels.cs` → `Assets/_Scripts/Data/SeasonSchedule.cs` (GUID
+      `b8c27ea9822b88845bc295c149c5c648` korunarak `git mv`, dosya adı EndingData/
+      CrisisData kalıbına uyacak şekilde birincil tipin adına çevrildi), `Game.Data`
+      namespace'ine taşındı, XML doc yorumları eklendi. `storyStarterIDs` kullanıcı
+      kararıyla **aynı isimle korundu** — silinen Origin/Story sistemiyle (madde 3)
+      ilgisiz olduğu, MVP-sonrası hafızalı zincir kartları (madde 4) için bir kanca
+      olduğu ve içeriğinin `CardManager.GetCardByID` ile çözülen kart ID'leri (JSON
+      değil) olduğu belirten bir doc notu eklendi — `isStoryCard`/`isPlayableOrigin`'de
+      yapılan netleştirme kalıbıyla aynı. `SeasonManager.cs` zaten `using Game.Data;`
+      içerdiği için **hiçbir consumer değişmedi**. Projede henüz bir schedule JSON'u
+      yok ve `SeasonManager.scheduleJsonFile` atanmamış görünüyor — sistem şu an
+      uykuda, bu taşıma davranışı değiştirmedi.
 - [ ] `SeasonHistoryData.cs` (StatsManager içinden çıkarılıp buraya taşınacak)
 
 ### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **BEKLİYOR**
