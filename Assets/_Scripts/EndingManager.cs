@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Game.Data;
 
 /// <summary>
 /// Oyun sonu senaryolarını (Game Over, Emeklilik vb.) yönetir.

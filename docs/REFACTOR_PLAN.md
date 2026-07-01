@@ -260,7 +260,17 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       yaratmıyor çünkü `condition` hiçbir yerde henüz okunmuyor (seçim mantığı hâlâ
       yalnızca `targetStat`'a bakıyor, bkz. madde 5). Newtonsoft'a geçişle (Katman 2)
       doğru dolacak. `costsLife` (bool) `JsonUtility` ile şimdiden doğru yükleniyor.
-- [ ] `EndingData.cs` (+ `EndingCollection`)
+- [x] `EndingData.cs` (+ `EndingCollection`) — Tamamlandı: `Assets/_Scripts/EndingData.cs`
+      → `Assets/_Scripts/Data/EndingData.cs` (GUID korunarak `git mv`), `Game.Data`
+      namespace'ine taşındı, bozuk Türkçe karakterli yorumlar (`Ya�land�`, `�zel`,
+      `J�B�LE`) temiz XML doc yorumlarıyla değiştirildi, gereksiz `using UnityEngine`
+      kaldırıldı. 6 alan `endings.json` ile birebir korundu, hiçbir alan eklenmedi/
+      çıkarılmadı. `triggerType` kullanıcı kararıyla **string kaldı** (enum'a
+      çevrilmedi) — kategori-string mimari kararıyla tutarlı, "Specific" ileride ID
+      bazlı özel sonlara açık kalsın diye, ayrıca `JsonUtility`'nin enum-by-name
+      pitfall'ı (bkz. `CrisisData.condition`'daki geçici bozulma) hiç yaşanmadı.
+      `EndingManager.cs`'e `using Game.Data;` eklendi (tip adlarını doğrudan
+      kullanıyor); `CardManager.cs` zaten `using Game.Data;` içerdiği için değişmedi.
 - [ ] `SeasonSchedule.cs` (+ `ScheduleCollection`)
 - [ ] `SeasonHistoryData.cs` (StatsManager içinden çıkarılıp buraya taşınacak)
 
