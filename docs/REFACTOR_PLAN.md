@@ -302,9 +302,45 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 
 **Katman 1 TAMAMLANDI.**
 
-### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **BEKLİYOR**
-- [ ] `StatService.cs`
-- [ ] `RequirementService.cs` (cache invalidation + cooldown entegrasyonu eklenecek)
+### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **DEVAM EDİYOR**
+- [x] `StatService.cs` — Tamamlandı: `Assets/_Scripts/Services/StatService.cs` (yeni
+      `Services/` klasörü, `Data/` klasörü emsaliyle tutarlı). Saf C# sınıf
+      (MonoBehaviour DEĞİL, `GameStateMachine` gibi — sahibi Katman 3'te `GameManager`
+      `new` ile oluşturacak). 5 kaynağı (`Dictionary<StatType,int>`) tutar; `Get`/`Set`/
+      `Apply` hem `StatType` enum hem `string` (`GameConstants.Stats`) overload'larıyla
+      çalışır; string→enum çözümü **TEK yerde** (`StatService.TryResolve`) yapılır —
+      eskiden `GameManager` (`Enum.TryParse`), `RequirementService` (eski
+      `CardConstants` switch'i) ve `DiceManager` (küçük-harf literal switch, **`money`
+      dalı hiç yoktu** — sessizce 50 dönüyordu) olmak üzere 3 ayrı yerde tekrarlanan
+      mantığın birleştiği nokta burası. `Set`/`Apply` clamp uygular ve `StatBoundary`
+      (`None`/`Min`/`Max`) döner; `ApplyChoice(ChoiceData)` bir kart seçiminin 5 stat
+      deltasını tek seferde uygulayıp sınıra çarpan statları döner.
+      **Bilinçli tasarım kararı — dormant servis:** Bu adımda `StatService` hiçbir
+      call-site'a (GameManager/RequirementService/DiceManager) bağlanmadı; sadece API
+      kuruldu. Ayrıca `GameEvents`'e (`OnResourcesUpdated`/`OnStatCritical`) bilinçli
+      olarak bağlanmıyor — sınır bilgisi yalnızca dönüş değeriyle (`StatBoundary`)
+      veriliyor, event fırlatma Katman 3'te `GameManager`'ın işi olacak (servisi Unity
+      statik'lerinden bağımsız/test edilebilir tutmak için). Bağlama sırası: `GameManager`
+      → Katman 3, `RequirementService`'in kendi switch'ini bırakıp buna geçmesi →
+      Katman 2 sıradaki adım, `DiceManager` (ve eksik-`money` bug'ının düzelmesi) →
+      Katman 4.
+      **Yan etki (scope genişlemesi, önceden bildirildi/onaylandı):** `StatType` enum'u
+      (5 kaynağı temsil eden) `GameManager.cs`'in içinden (global namespace) çıkarılıp
+      `Assets/_Scripts/StatType.cs`'e (`Game.Core`) taşındı — birden fazla servis
+      kullanacağı için tek dosyaya özel kalmaması gerekiyordu. Bu taşıma, `StatType`'ı
+      niteliksiz (unqualified) kullanan 3 dosyaya (`GameManager.cs`, `SeasonManager.cs`,
+      `SeasonScoring.cs`) `using Game.Core;` eklenmesini zorunlu kıldı — bu dosyalarda
+      başka hiçbir mantık değişmedi.
+      **Bilinen ön-koşul (bu adımın kapsamı dışında):** Proje şu an zaten derlenmiyor —
+      hiçbir dosya daha önce `using Game.Core;` içermiyordu ama eski manager katmanı
+      (`GameManager`, `SeasonManager`, `SeasonScoring`, `StatsManager`, `CrisisManager`,
+      `SaveManager` ...) `GameEvents`/`GameConstants`'ı niteliksiz kullanıyordu (madde 6,
+      derlenmeyi engelleyen buglarla aynı kökten, henüz her manager Katman 3/4'te
+      yeniden yazılmadığı için). `using Game.Core;` eklenen 3 dosyada bu artık çözüldü;
+      geri kalan manager'lar kendi katman sıraları geldiğinde düzelecek.
+- [ ] `RequirementService.cs` (cache invalidation + cooldown entegrasyonu eklenecek;
+      ayrıca `GetCurrentInt`'teki eski `CardConstants` switch'i `StatService.TryGet`'e
+      bağlanacak)
 - [ ] `CardRegistry.cs`
 - [ ] `CardDeckBuilder.cs` (cooldown + requirement filtresi gerçekten bağlanacak)
 - [ ] `MatchSimulator.cs` (büyük ölçüde korunacak, örnek kalitede bir dosya)

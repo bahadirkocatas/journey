@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using System;
+using Game.Core;
 using Game.Data;
-
-// Endüstri Standardı Enum (Zaten mevcut, tekrar tanımlamıyoruz)
-public enum StatType { Form, Money, Fame, Relations, Focus }
 
 public class GameManager : MonoBehaviour
 {
