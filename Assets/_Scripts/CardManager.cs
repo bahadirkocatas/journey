@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System;
 using Game.Data;
+using Game.Core;
+using Game.Services;
 
 public class CardManager : MonoBehaviour
 {
@@ -51,8 +53,25 @@ public class CardManager : MonoBehaviour
         _registry.LoadFromJSON(jsonFile);
     }
 
-    private void OnEnable() => GameEvents.OnCardResolved += HandleCardResolved;
-    private void OnDisable() => GameEvents.OnCardResolved -= HandleCardResolved;
+    private void OnEnable()
+    {
+        GameEvents.OnCardResolved += HandleCardResolved;
+
+        // Kart uygunluk cache'i (RequirementService), statlar/faz/hafta/flag-değişken
+        // değiştiğinde bayatlar — hepsinde temizlenir.
+        GameEvents.OnResourcesUpdated += HandleRequirementStateChanged;
+        GameEvents.OnPhaseAdvanced += HandleRequirementStateChanged;
+        GameEvents.OnWeekAdvanced += HandleRequirementStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnCardResolved -= HandleCardResolved;
+
+        GameEvents.OnResourcesUpdated -= HandleRequirementStateChanged;
+        GameEvents.OnPhaseAdvanced -= HandleRequirementStateChanged;
+        GameEvents.OnWeekAdvanced -= HandleRequirementStateChanged;
+    }
 
     // ============================================================
     //  DESTE YÖNETİMİ
@@ -100,7 +119,8 @@ public class CardManager : MonoBehaviour
         }
         if (isCrisisActive) return;
 
-        // Zorunlu kart
+        // Zorunlu kart — zincir devam kartı, cooldown'ı bilinçli olarak bypass eder
+        // (anlatı akışı successCardID ile zorlandığında kesilmesin diye).
         if (!string.IsNullOrEmpty(_forcedNextCardID))
         {
             var target = _registry.GetCardByID(_forcedNextCardID);
@@ -112,11 +132,11 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // Kuyruk
+        // Kuyruk — havuz kartı, cooldown'a tabi.
         while (_eventQueue.Count > 0)
         {
             var next = _eventQueue.Dequeue();
-            if (next != null && _reqService.CheckRequirements(next.requirements, $"card_{next.id}"))
+            if (next != null && _reqService.IsCardEligible(next))
             {
                 SetCurrentCard(next);
                 return;
@@ -203,6 +223,10 @@ public class CardManager : MonoBehaviour
     {
         if (processedCard == null || isGameOver) return;
 
+        // Kart çözüldü: flag/variable/cooldown (StoryManager) değişmiş olabilir —
+        // requirement/uygunluk cache'i bayatladı.
+        _reqService.ClearCache();
+
         if (processedCard.id == "CRISIS_CARD")
         {
             ExitCrisisMode();
@@ -220,6 +244,12 @@ public class CardManager : MonoBehaviour
             GameEvents.OnCardFlowEnded?.Invoke();
         }
     }
+
+    /// <summary>Statlar (OnResourcesUpdated) veya faz (OnPhaseAdvanced) değişince cache'i temizler.</summary>
+    private void HandleRequirementStateChanged() => _reqService.ClearCache();
+
+    /// <summary>Hafta ilerleyince (OnWeekAdvanced — cooldown'lar da düşer) cache'i temizler.</summary>
+    private void HandleRequirementStateChanged(int _) => _reqService.ClearCache();
 
     public bool CheckRequirements(List<RequirementData> reqs, string cacheKey = "") =>
         _reqService.CheckRequirements(reqs, cacheKey);

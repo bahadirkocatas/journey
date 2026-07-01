@@ -338,9 +338,43 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       derlenmeyi engelleyen buglarla aynı kökten, henüz her manager Katman 3/4'te
       yeniden yazılmadığı için). `using Game.Core;` eklenen 3 dosyada bu artık çözüldü;
       geri kalan manager'lar kendi katman sıraları geldiğinde düzelecek.
-- [ ] `RequirementService.cs` (cache invalidation + cooldown entegrasyonu eklenecek;
-      ayrıca `GetCurrentInt`'teki eski `CardConstants` switch'i `StatService.TryGet`'e
-      bağlanacak)
+- [x] `RequirementService.cs` — Tamamlandı: `Assets/_Scripts/RequirementService.cs`
+      `Game.Services` namespace'ine taşındı (`StatService` emsaliyle tutarlı; `Game.Data`/
+      `Game.Core` bağımlı, dosya kendisi `GameManager`/`StoryManager`'a — global
+      namespace, üst katman — geçici yukarı-bağımlı kalıyor, bkz. aşağı). `EvaluateSingle`/
+      `GetCurrentInt`'teki eski `CardConstants.*` sabitleri `GameConstants.ReqTypes.*`/
+      `GameConstants.Stats.*`'a taşındı (`CardConstants.cs` **silinmedi** —
+      `CardDeckBuilder` hâlâ `CardConstants.Category*` kullanıyor).
+      **Cooldown entegrasyonu:** Yeni `IsCardEligible(CardData)` eklendi
+      (`requirements && !StoryManager.IsOnCooldown`, cooldown her çağrıda canlı
+      değerlendirilir, cache'e girmez). `CardRegistry.GetValidCards` ve
+      `CardManager.LoadNewCard`'daki **kuyruk yolu** buna bağlandı — havuzdan gelen
+      kartlar artık cooldown'a tabi. `CardManager`'daki **zorlanan yol**
+      (`_forcedNextCardID`, `successCardID` ile zincir devamı) kullanıcı kararıyla
+      **`CheckRequirements`'ta bırakıldı** — cooldown'ı bilinçli olarak bypass eder
+      (anlatı akışı kesilmesin diye).
+      **Cache invalidation:** `ClearCache()` zaten vardı ama hiç çağrılmıyordu; servis
+      kendisi `GameEvents`'e abone OLMUYOR (saf kalması için) — sahibi `CardManager`
+      tetikliyor: `OnCardResolved` (flag/variable/cooldown değişebilir),
+      `OnResourcesUpdated`/`OnPhaseAdvanced` (parametresiz `Action`) ve
+      `OnWeekAdvanced` (`Action<int>`, ayrı bir overload — `HandleRequirementStateChanged()`
+      / `HandleRequirementStateChanged(int _)`) hepsinde cache temizleniyor.
+      **Bilinçli olarak ERTELENDİ (Katman 3'e):** `GetCurrentInt`'in
+      `StatService.TryGet`'e bağlanması yapılmadı — `StatService` hâlâ "dormant" (canlı
+      sahibi yok, bkz. yukarıdaki `StatService.cs` maddesi), stat'lar hâlâ
+      `GameManager`'ın düz alanlarında. Şimdi bağlansaydı her stat sabit 50 okunurdu
+      (sessiz mantık hatası) — bu yüzden `GetCurrentInt` geçici olarak
+      `GameManager.Instance.form/money/...` okumaya devam ediyor; değer-kaynağı takası,
+      `GameManager` bir `StatService` örneğini sahiplendiğinde (Katman 3) atomik
+      yapılacak. Aynı nedenle `RequirementService`'in `GameManager`/`StoryManager`'a
+      olan yukarı-bağımlılığı (layer ihlali, global namespace'ten `Game.Services`'e
+      inject edilmesi gereken bir bağımlılık) da Katman 3'e erteleniyor.
+      **Yan etki (scope genişlemesi, önceden bildirildi/onaylandı):** `CardRegistry.cs`
+      ve `CardDeckBuilder.cs`'e (Katman 2) `using Game.Services;` eklendi;
+      `CardManager.cs`'e (Katman 3 dosyası) `using Game.Core;`/`using Game.Services;`
+      eklendi ve yukarıdaki kuyruk-yolu/cache-invalidation değişiklikleri yapıldı — bu
+      dokunuşlar mekanik/minimal, önceki katman adımlarındaki `using` ekleme kalıbıyla
+      aynı türden, `CardManager`'ın kendisi henüz yeniden yazılmadı.
 - [ ] `CardRegistry.cs`
 - [ ] `CardDeckBuilder.cs` (cooldown + requirement filtresi gerçekten bağlanacak)
 - [ ] `MatchSimulator.cs` (büyük ölçüde korunacak, örnek kalitede bir dosya)
