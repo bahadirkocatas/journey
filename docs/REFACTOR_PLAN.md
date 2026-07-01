@@ -176,9 +176,12 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 - [X] `ChoiceData.cs` — **NOT:** `isRisk` / `riskStat` / `riskMode` alan adları geçici;
       `cards_ucl.json`'daki gerçek risk/zar alan adlarıyla karşılaştırılıp
       kesinleştirilmeli (madde 5'e bkz).
-- [ ] `HiddenEffect.cs`
-- [ ] `StatEffect.cs`
+- [x] `HiddenEffect.cs`
+- [x] `StatEffect.cs`
 - [ ] `CardData.cs` (ChoiceData kullanacak şekilde; `CardPool`, `CardCollection` dahil)
+      — **NOT:** CardData.cs yeniden yazılırken kendi içindeki eski (global namespace)
+      HiddenEffect ve StatEffect tanımları SİLİNECEK, Game.Data.HiddenEffect /
+      Game.Data.StatEffect kullanılacak — duplike tip bırakılmayacak.
 - [ ] `CountryData.cs` (+ `CountryCollection`, `List<>` tutarlılığı sağlanacak — bazı
       koleksiyonlar array bazıları List, hepsi List'e sabitlenecek)
 - [ ] `TeamData.cs` (+ `TeamCollection`)
