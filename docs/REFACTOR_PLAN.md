@@ -284,7 +284,23 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       içerdiği için **hiçbir consumer değişmedi**. Projede henüz bir schedule JSON'u
       yok ve `SeasonManager.scheduleJsonFile` atanmamış görünüyor — sistem şu an
       uykuda, bu taşıma davranışı değiştirmedi.
-- [ ] `SeasonHistoryData.cs` (StatsManager içinden çıkarılıp buraya taşınacak)
+- [x] `SeasonHistoryData.cs` (StatsManager içinden çıkarılıp buraya taşınacak) —
+      Tamamlandı: `Assets/_Scripts/StatsManager.cs` içindeki inline tanım (5 alan:
+      `age`, `teamName`, `goals`, `assists`, `rating`) silinip yeni
+      `Assets/_Scripts/Data/SeasonHistoryData.cs`'e taşındı, `Game.Data` namespace'ine
+      alındı, XML doc yorumları eklendi. Diğer Katman 1 tiplerinden farklı olarak bu
+      tip JSON'dan yüklenmiyor (sezon sonunda `StatsManager.ArchiveCurrentSeason`
+      tarafından runtime'da üretiliyor) — bu yüzden `git mv`/GUID koruması ve bir
+      `Collection` sarmalayıcısı gerekmedi, sıfırdan yeni dosya oluşturuldu.
+      `StatsManager.cs` zaten `using Game.Data;` içerdiği için `careerHistory` alanı ve
+      `ArchiveCurrentSeason` içindeki `new SeasonHistoryData(...)` değişmeden çalışıyor.
+      `CareerSummaryUI.cs`/`DashboardManager.cs` tipe `var` ile eriştiği için
+      (`StatsManager.Instance.careerHistory`), tip adını hiç yazmıyorlar —
+      **hiçbir consumer değişmedi**. `SampleScene.unity`'deki `careerHistory: []`
+      referansı, namespace değişikliğinin düz `[System.Serializable]` sınıfların Unity
+      serileştirmesini etkilememesi nedeniyle bozulmadı.
+
+**Katman 1 TAMAMLANDI.**
 
 ### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **BEKLİYOR**
 - [ ] `StatService.cs`

@@ -2,15 +2,6 @@
 using System.Collections.Generic;
 using Game.Data;
 
-[System.Serializable]
-public class SeasonHistoryData
-{
-    public int age;
-    public string teamName;
-    public int goals;
-    public int assists;
-    public float rating;
-}
 public class StatsManager : MonoBehaviour
 {
     public static StatsManager Instance;
