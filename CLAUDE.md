@@ -10,7 +10,7 @@ olarak ekle), sonra kodu yaz.
 ## Kod Standardı
 
 - En profesyonel, endüstri standardı Unity/C# kodu yaz. Kör onaylama — daha iyi/daha
-  doğru bir yol varsa öner, gerekçesini kısaca açıkla.
+  doğru bir yol varsa öner, gerekçesini kısaca açıkla, kendince en profesyonel olanı da "önerilen" ifadesiyle ve neden önerdiğinle belirt.
 - Yorumlar Türkçe, kod (değişken/metot/sınıf adları) İngilizce ve PascalCase/camelCase
   standardında.
 - Tüm dosyalar UTF-8 (BOM'suz).
@@ -63,3 +63,10 @@ Görev ortasında kesinti olabilir (kullanım limiti, bağlantı sorunu). Yeni b
 oturuma başlarken, REFACTOR_PLAN.md'deki bir madde `[x]` görünse bile körü körüne
 güvenme — önce `git status` ve ilgili dosyanın gerçekten tam/derlenir olduğunu
 kontrol et. Şüpheli görünen bir dosyayı asla üzerine yazmadan önce içeriğini oku.
+
+## Scope Genişlemesi Kuralı
+
+Bir dosyayı değiştirmek başka dosyaların da (call site'lar, bağımlı manager'lar)
+değişmesini zorunlu kılıyorsa, sessizce genişletip yazma. Plan sunarken hangi ek
+dosyaların neden etkilendiğini açıkça listele, özellikle REFACTOR_PLAN.md'deki
+mevcut "Katman" sınırının dışına taşıyorsa — onay bekle, ilerleme.
