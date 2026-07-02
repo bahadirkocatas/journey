@@ -386,7 +386,25 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       değişmeden çalışıyor, davranışı aynı kalıyor). `CardManager.cs` ve
       `CardDeckBuilder.cs` zaten `using Game.Services;` içerdiği için namespace
       değişiminden etkilenmediler, dokunulmadı.
-- [ ] `CardDeckBuilder.cs` (cooldown + requirement filtresi gerçekten bağlanacak)
+- [x] `CardDeckBuilder.cs` — Tamamlandı: `Game.Services` namespace'ine alındı
+      (`StatService`/`RequirementService`/`CardRegistry` emsaliyle tutarlı, `using
+      Game.Services;` gereksizleşti kaldırıldı, `using Game.Core;` eklendi). Eski
+      `CardConstants.Category*` sabitleri `GameConstants.Categories.*`'a taşındı —
+      dosya artık eski `CardConstants`'a hiç bağımlı değil. **Filtre notu:**
+      "cooldown + requirement filtresi gerçekten bağlanacak" maddesi bu adımdan önce
+      zaten tamamlanmıştı (`CardRegistry.GetValidCards` → `IsCardEligible`, bkz.
+      yukarıdaki `CardRegistry.cs` maddesi); `CardDeckBuilder.BuildSeasonDeck` zaten
+      `_registry.GetValidCards(_reqService)` çağırıyordu — burada yalnızca
+      **doğrulandı**, yeniden bağlanmadı. Ölü kod temizliği: yalnızca
+      `result.Count`'u okumak için var olan `result` listesi kaldırılıp yerine
+      `reservedCount` (int) hesaplaması kondu — davranış birebir aynı, sadece bozuk
+      Türkçe karakterli yorum (`Ge�ici, sona ekleyece�iz`) da bu vesileyle kalktı.
+      Deste kurma algoritmasının kendisi (gap/match/transition/filler yerleştirme)
+      değişmedi. `CardConstants.cs` **silinmedi** — `CardUIHandler.cs` (Katman 4)
+      hâlâ `SuffixDesc/SuffixRight/SuffixLeft/PhaseIndicator` lokalizasyon eklerini
+      kullanıyor; o dosya `GameConstants.Loc.*`'a geçince silinecek. Tek tüketici
+      `CardManager.cs` zaten `using Game.Services;` içerdiği ve tipi niteliksiz
+      kullandığı için değişmedi.
 - [ ] `MatchSimulator.cs` (büyük ölçüde korunacak, örnek kalitede bir dosya)
 - [ ] `DiceService.cs` (BG3 tarzı zar mantığı, UI'dan ayrılmış)
 - [ ] `SystemCardFactory.cs` (kriz/gameover/UCL synthetic kartları tek yerden üretir)
