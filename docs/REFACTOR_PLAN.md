@@ -449,8 +449,61 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 
 **Katman 2 TAMAMLANDI.**
 
-### Katman 3 — `Game.Gameplay` (manager'lar) — **BEKLİYOR**
-- [ ] `GameManager.cs` (ince koordinatör; Stat/Life/Phase servislerine delege eder)
+### Katman 3 — `Game.Gameplay` (manager'lar) — **DEVAM EDİYOR**
+- [x] `GameManager.cs` (ince koordinatör; Stat/Life/Phase servislerine delege eder) —
+      Tamamlandı: `MonoBehaviour` + elle `Instance` → `Singleton<GameManager>`
+      (`OnSingletonAwake`). `StatService` (Katman 2'de dormant yazılmıştı) artık burada
+      `new` ile sahiplenilip `public StatService Stats` olarak dışarı açıldı;
+      `form/money/fame/relations/focus` `Stats.Get`'e delege eden salt-okunur uyumluluk
+      property'lerine dönüştü (5 tüketici dosya — `DiceManager`, `RequirementService`,
+      `SaveManager`, `StatsManager`, `TeamManager` — değişmeden derleniyor, hiçbiri bu
+      alanlara yazmıyordu). `ApplyStatChange(string/StatType)`/`SetStat(string)` artık
+      kendi switch/clamp mantığı yerine `StatService.Apply/Set` + `StatService.TryResolve`
+      (string→enum TEK çözücü) kullanıyor; eski `ClampAndCheckStats`/`CheckCrisis`/
+      `crisisTriggeredThisTurn` silindi. **Kriz tetikleme kararı:** artık yalnızca
+      `HandleCardSwiped` (→ `Stats.ApplyChoice` dönüşündeki ilk `StatBoundaryHit`) kriz
+      fırlatıyor; `ApplyStatChange`/`SetStat` (sezon ödülleri, save/load, kriz-reset)
+      bilinçli olarak fırlatmıyor — eski `crisisTriggeredThisTurn` bayrağı yalnızca kart
+      swipe'ında sıfırlandığı için bu yollar zaten tutarsız/spurious kriz üretiyordu.
+      `GameStateMachine` (Katman 0'da yazılmış ama sahipsizdi) artık `GameManager`
+      tarafından `new` ile oluşturuluyor (`public GameStateMachine State`),
+      `OnStateChanged` → `GameEvents.OnGameStateChanged` köprüsü kuruldu;
+      `StartCareer` → `Playing`, can bitince → `GameOver` geçişi eklendi. **Can
+      (lives) artık düzgün dışarı açık:** `public int CurrentLives` (salt okunur) +
+      `public void RestoreLives(int)` (save/load için) — madde 6'daki derlenmeyi
+      engelleyen buglardan biri (`SaveManager`'ın var olmayan `currentLives` alanını
+      okuyup yazması) kökten çözüldü. `lifeSystem.OnGameOver`/`OnLifeLost` artık isimli
+      metotlarla (`HandleGameOver`/`HandleLifeLost`) bağlanıp `OnDestroy`'da doğru
+      çözülüyor (eski kod lambda ile bağlayıp lambda ile çözmeye çalışıyordu — hiç
+      çözülmüyordu, latent leak düzeldi). Kullanılmayan `static OnPhaseAdvanced`
+      silindi; `AdvanceToNextPhase` artık `GameEvents.OnPhaseAdvanced` fırlatıyor (eski
+      static event'e hiçbir dinleyici ulaşamıyordu — `CardManager`'ın cache-invalidation
+      aboneliği artık gerçekten tetikleniyor, latent bug düzeldi). `static OnGameOver`
+      geriye dönük uyumluluk için korundu (`EndingManager` hâlâ ona abone).
+      **Namespace ertelendi (bilinçli):** `GameManager` bu adımda global namespace'te
+      kaldı, `Game.Gameplay`'e taşınmadı — 12 tüketici dosya henüz global namespace'te;
+      taşıma tüm Gameplay manager'larıyla birlikte tek koordineli geçişte yapılacak.
+      **Yan etki (scope genişlemesi, önceden bildirildi/onaylandı):**
+      `LifeSystem.cs` `Game.Gameplay` namespace'ine taşındı (somut oyun mekaniği,
+      Core'daki altyapı sınıflarından farklı; sahibi `GameManager` ile aynı katmanda
+      durması kararlaştırıldı) — bozuk Türkçe karakterli yorumlar temizlendi, ölü
+      `ResetStats()` silindi, yeni `SetLives(int)` eklendi (save/load restore için).
+      `SaveManager.cs`'e madde 6'daki İKİNCİ derlenmeyi engelleyen bug için de dokunuldu:
+      silinmiş `StatsManager.earnedAwards`'a 3 referans (`GameSaveData.earnedAwards`
+      alanı + save/load satırları) kaldırıldı (madde 3'teki "award kalıntıları
+      temizlenecek" kararıyla tutarlı); `data.lives` artık `CurrentLives`/
+      `RestoreLives` üzerinden okunup yazılıyor.
+      **Doğrulama:** `dotnet build Assembly-CSharp.csproj` ile derleme kontrolü yapıldı
+      (Unity Editor'e ek olarak/onun yerine — bu ortamda kullanılabilir bir CLI yol).
+      Değişiklik öncesi 39 benzersiz derleme hatası vardı; sonrasında 35 kaldı, kalan
+      35'i bu üç dosyayla ilgisiz (henüz migrate edilmemiş `StoryManager`,
+      `CardUIHandler`, `StatsManager`, `UCLManager`, `EndingManager`, `CardController`,
+      `SeasonManager`, `CrisisManager`, `TeamManager` — hepsi kendi Katman 3 sırasını
+      bekliyor, `GameEvents`'i niteliksiz kullanıyorlar ya da `SeasonManager` eski
+      `OnUCLFinalTriggered/Completed` adlarını kullanıyor). `GameManager.cs`/
+      `LifeSystem.cs`/`SaveManager.cs`'in kendisi sıfır hata veriyor (yalnızca
+      önceden de var olan tarzda zararsız bir `CS0414` uyarısı — kullanılmayan
+      `resetValueAfterDeath` alanı, bu adımın kapsamı dışında bırakıldı).
 - [ ] `CardManager.cs` (synthetic üretim dışarı alınmış, `QueueCount`/`queueCount`
       çiftlemesi giderilmiş)
 - [ ] `SeasonManager.cs` (sadece zaman akışı; UCL ve sezon-sonu ayrılmış)

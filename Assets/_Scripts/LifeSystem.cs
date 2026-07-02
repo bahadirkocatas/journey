@@ -1,60 +1,67 @@
 using UnityEngine;
 
-[System.Serializable]
-public class LifeSystem
+namespace Game.Gameplay
 {
-    [Header("Can Ayarları")]
-    [SerializeField] private int maxLives = 3;
-    [SerializeField] private int resetValueAfterDeath = 50;
-
-    public int CurrentLives { get; private set; }
-    public GameObject[] HeartIcons { private get; set; }
-
-    // Dışarıya (UI/Manager) haber vermek için event'ler
-    public event System.Action OnLifeLost;
-    public event System.Action OnGameOver;
-
-    public void Initialize(GameObject[] heartIcons)
+    /// <summary>
+    /// Oyuncunun kariyer boyunca sahip olduÄŸu can (kalp) sayÄ±sÄ±nÄ± yÃ¶netir.
+    ///
+    /// Game.Core'daki altyapÄ± sÄ±nÄ±flarÄ±nÄ±n (Singleton, GameStateMachine, GameConstants)
+    /// aksine yeniden kullanÄ±labilir bir altyapÄ± parÃ§asÄ± deÄŸil, somut bir oyun mekaniÄŸi
+    /// (kariyer canÄ± + kalp ikon UI'Ä±); bu yÃ¼zden Game.Gameplay'e ait â€” sahibi
+    /// GameManager ile aynÄ± katmanda durur.
+    /// </summary>
+    [System.Serializable]
+    public class LifeSystem
     {
-        HeartIcons = heartIcons;
-        CurrentLives = maxLives;
-        UpdateUI();
-    }
+        [Header("Can AyarlarÄ±")]
+        [SerializeField] private int maxLives = 3;
+        [SerializeField] private int resetValueAfterDeath = 50;
 
-    public void LoseLife()
-    {
-        if (CurrentLives <= 0) return;
+        public int CurrentLives { get; private set; }
+        public GameObject[] HeartIcons { private get; set; }
 
-        CurrentLives--;
-        OnLifeLost?.Invoke(); // Ses, efekt, vs. buraya bağlanır
-        UpdateUI();
+        // DÄ±ÅŸarÄ±ya (UI/Manager) haber vermek iÃ§in event'ler
+        public event System.Action OnLifeLost;
+        public event System.Action OnGameOver;
 
-        if (CurrentLives <= 0)
+        public void Initialize(GameObject[] heartIcons)
         {
-            OnGameOver?.Invoke();
+            HeartIcons = heartIcons;
+            CurrentLives = maxLives;
+            UpdateUI();
         }
-        else
+
+        public void LoseLife()
         {
-            // Can gitti ama oyun devam ediyor: Stat'ları sıfırla (GameManager bunu dinleyecek)
-            ResetStats();
+            if (CurrentLives <= 0) return;
+
+            CurrentLives--;
+            OnLifeLost?.Invoke(); // Ses, efekt, vs. buraya baÄŸlanÄ±r
+            UpdateUI();
+
+            if (CurrentLives <= 0)
+            {
+                OnGameOver?.Invoke();
+            }
         }
-    }
 
-    public void ResetStats()
-    {
-        // Stat'ları sıfırla (GameManager'daki stat'lara uygulanmak üzere event fırlat)
-        // Bunu GameManager HandleLifeLost içinde yapacak, burada sadece sinyal veriyoruz.
-        // Not: Bu metot doğrudan stat sıfırlamaz, sadece dışarıya haber verir.
-        // GameManager bu event'i dinleyip stat'ları sıfırlayacak.
-    }
-
-    private void UpdateUI()
-    {
-        if (HeartIcons == null) return;
-        for (int i = 0; i < HeartIcons.Length; i++)
+        /// <summary>
+        /// Save/load restore'u iÃ§in canÄ± doÄŸrudan (event fÄ±rlatmadan) ayarlar.
+        /// </summary>
+        public void SetLives(int lives)
         {
-            if (HeartIcons[i] != null)
-                HeartIcons[i].SetActive(i < CurrentLives);
+            CurrentLives = Mathf.Clamp(lives, 0, maxLives);
+            UpdateUI();
+        }
+
+        private void UpdateUI()
+        {
+            if (HeartIcons == null) return;
+            for (int i = 0; i < HeartIcons.Length; i++)
+            {
+                if (HeartIcons[i] != null)
+                    HeartIcons[i].SetActive(i < CurrentLives);
+            }
         }
     }
 }

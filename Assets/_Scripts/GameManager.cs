@@ -1,12 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using Game.Core;
 using Game.Data;
+using Game.Services;
+using Game.Gameplay;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    public static GameManager Instance { get; private set; }
-
     [Header("Oyuncu Kimliği")]
     public string playerName = "İsimsiz";
 
@@ -19,12 +19,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int maxStatValue = 100;
     [SerializeField] private int minStatValue = 0;
 
-    [Header("5 Kaynak Sistemi")]
-    public int form;
-    public int money;
-    public int fame;
-    public int relations;
-    public int focus;
+    /// <summary>
+    /// Oyuncunun 5 kaynağının TEK doğru kaynağı. Sahibi burasıdır (bkz.
+    /// docs/REFACTOR_PLAN.md Katman 2 — StatService).
+    /// </summary>
+    public StatService Stats { get; private set; }
+
+    // Geçici uyumluluk property'leri: form/money/fame/relations/focus'u OKUYAN eski
+    // tüketiciler (DiceManager, RequirementService, SaveManager, StatsManager,
+    // TeamManager) bu adımda değişmeden derlensin diye korunuyor. Hiçbiri bu alanlara
+    // YAZMIYOR. Tüketiciler doğrudan Stats'a geçtiğinde bu property'ler kaldırılacak.
+    public int form => Stats.Get(StatType.Form);
+    public int money => Stats.Get(StatType.Money);
+    public int fame => Stats.Get(StatType.Fame);
+    public int relations => Stats.Get(StatType.Relations);
+    public int focus => Stats.Get(StatType.Focus);
 
     [Header("UI İndikatörleri (Gösterge Nesneleri)")]
     public GameObject displayForm;
@@ -37,19 +46,29 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LifeSystem lifeSystem = new LifeSystem();
     public GameObject[] heartIcons; // LifeSystem'e bağlanacak
 
-    private bool crisisTriggeredThisTurn = false;
+    /// <summary>Kalan can sayısı. SaveManager save/load sırasında bunu okur/yazar.</summary>
+    public int CurrentLives => lifeSystem.CurrentLives;
+
+    /// <summary>
+    /// Oyunun yüksek seviye akış durumu — TEK doğru kaynak (bkz.
+    /// docs/REFACTOR_PLAN.md Katman 0 — GameStateMachine). Değişimler
+    /// <see cref="GameEvents.OnGameStateChanged"/>'e köprülenir.
+    /// </summary>
+    public GameStateMachine State { get; private set; }
 
     // ========================================================================
     //  BAŞLANGIÇ VE EVENT BAĞLANTILARI
     // ========================================================================
-    private void Awake()
+    protected override void OnSingletonAwake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        Stats = new StatService(minStatValue, maxStatValue, startValue);
+
+        State = new GameStateMachine();
+        State.OnStateChanged += HandleStateChanged;
 
         // LifeSystem'e kalp ikonlarını ver
         lifeSystem.HeartIcons = heartIcons;
-        lifeSystem.OnGameOver += () => OnGameOver?.Invoke();
+        lifeSystem.OnGameOver += HandleGameOver;
         lifeSystem.OnLifeLost += HandleLifeLost;
     }
 
@@ -63,8 +82,19 @@ public class GameManager : MonoBehaviour
     {
         GameEvents.OnCardSwiped -= HandleCardSwiped;
         GameEvents.OnLifeLost -= lifeSystem.LoseLife;
-        lifeSystem.OnGameOver -= () => OnGameOver?.Invoke();
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        State.OnStateChanged -= HandleStateChanged;
+        lifeSystem.OnGameOver -= HandleGameOver;
         lifeSystem.OnLifeLost -= HandleLifeLost;
+    }
+
+    private void HandleStateChanged(GameState previous, GameState current)
+    {
+        GameEvents.OnGameStateChanged?.Invoke(previous, current);
     }
 
     // ========================================================================
@@ -73,14 +103,11 @@ public class GameManager : MonoBehaviour
     public void StartCareer(string pName)
     {
         playerName = pName;
-        form = startValue;
-        money = startValue;
-        fame = startValue;
-        relations = startValue;
-        focus = startValue;
+        Stats.ResetAll(startValue);
         currentPhaseIndex = 0;
 
         lifeSystem.Initialize(heartIcons);
+        State.Set(GameState.Playing);
         GameEvents.OnResourcesUpdated?.Invoke();
     }
 
@@ -90,28 +117,13 @@ public class GameManager : MonoBehaviour
     private void HandleCardSwiped(CardData card, bool isRight)
     {
         if (card == null) return;
-        crisisTriggeredThisTurn = false;
 
-        // Değişimleri uygula
-        if (isRight)
-        {
-            form += card.right.form;
-            money += card.right.money;
-            fame += card.right.fame;
-            relations += card.right.relations;
-            focus += card.right.focus;
-        }
-        else
-        {
-            form += card.left.form;
-            money += card.left.money;
-            fame += card.left.fame;
-            relations += card.left.relations;
-            focus += card.left.focus;
-        }
+        var hits = Stats.ApplyChoice(isRight ? card.right : card.left);
 
-        // Sınırları kontrol et ve Krizleri tetikle
-        ClampAndCheckStats();
+        // Eski davranışla birebir: kart başına en fazla bir kriz tetiklenir — sınıra
+        // çarpan statlardan ilki (Form→Money→Fame→Relations→Focus sırasıyla) kazanır.
+        if (hits.Count > 0)
+            GameEvents.OnStatCritical?.Invoke(hits[0].Stat.ToString());
 
         // UI'ı güncelle
         GameEvents.OnResourcesUpdated?.Invoke();
@@ -121,9 +133,12 @@ public class GameManager : MonoBehaviour
     // ========================================================================
     //  🛠️ STAT YÖNETİMİ (PUBLIC METODLAR - ESKİ KOD UYUMLULUĞU)
     // ========================================================================
+    // Not: Bu üç metot bilinçli olarak kriz TETİKLEMEZ (sezon ödülleri, save/load,
+    // kriz-reset gibi "kart dışı" stat değişimleri için kullanılır). Kriz yalnızca
+    // HandleCardSwiped'ten fırlatılır — bkz. docs/REFACTOR_PLAN.md Katman 3.
     public void ApplyStatChange(string statName, int amount)
     {
-        if (Enum.TryParse(statName, out StatType statEnum))
+        if (StatService.TryResolve(statName, out var statEnum))
             ApplyStatChange(statEnum, amount);
         else
             Debug.LogWarning($"[GameManager] Geçersiz stat adı: {statName}");
@@ -131,77 +146,41 @@ public class GameManager : MonoBehaviour
 
     public void ApplyStatChange(StatType stat, int amount)
     {
-        switch (stat)
-        {
-            case StatType.Form: form += amount; break;
-            case StatType.Money: money += amount; break;
-            case StatType.Fame: fame += amount; break;
-            case StatType.Relations: relations += amount; break;
-            case StatType.Focus: focus += amount; break;
-        }
-        ClampAndCheckStats();
+        Stats.Apply(stat, amount);
         GameEvents.OnResourcesUpdated?.Invoke();
     }
 
     public void SetStat(string statName, int value)
     {
-        if (Enum.TryParse(statName, out StatType statEnum))
+        if (StatService.TryResolve(statName, out var statEnum))
         {
-            switch (statEnum)
-            {
-                case StatType.Form: form = value; break;
-                case StatType.Money: money = value; break;
-                case StatType.Fame: fame = value; break;
-                case StatType.Relations: relations = value; break;
-                case StatType.Focus: focus = value; break;
-            }
-            ClampAndCheckStats();
+            Stats.Set(statEnum, value);
             GameEvents.OnResourcesUpdated?.Invoke();
         }
-    }
-
-    // ========================================================================
-    //  ⚙️ ÖZEL METODLAR (CLAMP & KRİZ KONTROL)
-    // ========================================================================
-    private void ClampAndCheckStats()
-    {
-        form = Mathf.Clamp(form, minStatValue, maxStatValue);
-        money = Mathf.Clamp(money, minStatValue, maxStatValue);
-        fame = Mathf.Clamp(fame, minStatValue, maxStatValue);
-        relations = Mathf.Clamp(relations, minStatValue, maxStatValue);
-        focus = Mathf.Clamp(focus, minStatValue, maxStatValue);
-
-        CheckCrisis(StatType.Form, form);
-        CheckCrisis(StatType.Money, money);
-        CheckCrisis(StatType.Fame, fame);
-        CheckCrisis(StatType.Relations, relations);
-        CheckCrisis(StatType.Focus, focus);
-    }
-
-    private void CheckCrisis(StatType stat, int statValue)
-    {
-        if (crisisTriggeredThisTurn) return;
-        if (statValue <= minStatValue || statValue >= maxStatValue)
+        else
         {
-            crisisTriggeredThisTurn = true;
-            GameEvents.OnStatCritical?.Invoke(stat.ToString());
+            Debug.LogWarning($"[GameManager] Geçersiz stat adı: {statName}");
         }
     }
 
     // ========================================================================
     //  ❤️ CAN KAYBI VE SONRASI (LifeSystem Tarafından Tetiklenir)
     // ========================================================================
+    /// <summary>Save/load sırasında canı doğrudan geri yükler (yan etki üretmeden).</summary>
+    public void RestoreLives(int lives) => lifeSystem.SetLives(lives);
+
     private void HandleLifeLost()
     {
-        // Can kaybı sonrası stat'ları sıfırla (reset değeri LifeSystem'den alınır, ama biz sabit 50 kullanalım)
-        // LifeSystem zaten ResetStats event'ini fırlatmıyor, doğrudan burada yapalım.
-        form = 50;
-        money = 50;
-        fame = 50;
-        relations = 50;
-        focus = 50;
-
+        // Can kaybı sonrası stat'ları başlangıç değerine sıfırla
+        Stats.ResetAll();
         GameEvents.OnResourcesUpdated?.Invoke();
+    }
+
+    private void HandleGameOver()
+    {
+        State.Set(GameState.GameOver);
+        OnGameOver?.Invoke();
+        GameEvents.OnGameOver?.Invoke();
     }
 
     // ========================================================================
@@ -210,12 +189,11 @@ public class GameManager : MonoBehaviour
     public void AdvanceToNextPhase()
     {
         currentPhaseIndex++;
-        OnPhaseAdvanced?.Invoke();
+        GameEvents.OnPhaseAdvanced?.Invoke();
     }
 
     // ========================================================================
-    //  📢 EVENT'LER (Dışarıya haber verir)
+    //  📢 EVENT'LER (Dışarıya haber verir — geriye dönük uyumluluk)
     // ========================================================================
-    public static event Action OnPhaseAdvanced;
     public static event Action OnGameOver;
 }

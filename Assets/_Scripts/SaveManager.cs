@@ -5,7 +5,7 @@ using System.IO;
 [System.Serializable]
 public class GameSaveData
 {
-    // --- KÝMLÝK ---
+    // --- Kï¿½MLï¿½K ---
     public string playerName;
     public string playerNationID;
     public string playerTeamID;
@@ -24,19 +24,18 @@ public class GameSaveData
     public int focus;
     public int lives;
 
-    // --- ÝSTATÝSTÝK VE PERFORMANS ---
+    // --- ï¿½STATï¿½STï¿½K VE PERFORMANS ---
     public int seasonGoals;
     public int seasonAssists;
     public int totalGoals;
     public int totalAssists;
     public int matchesPlayed;
     public float averageRating;
-    public List<string> earnedAwards;
 
-    // --- OYUN AKIÞ HAFIZASI ---
+    // --- OYUN AKIï¿½ HAFIZASI ---
     public List<string> storyFlags;
 
-    // Dictionary JSON'a direkt kaydedilemez, listelerle ayrýþtýrýyoruz
+    // Dictionary JSON'a direkt kaydedilemez, listelerle ayrï¿½ï¿½tï¿½rï¿½yoruz
     public List<string> variableKeys;
     public List<int> variableValues;
 
@@ -45,8 +44,8 @@ public class GameSaveData
 }
 
 /// <summary>
-/// Oyunun tüm verilerini JSON formatýnda kalýcý olarak diske yazar ve okur.
-/// TAM MVP SÜRÜMÜ: Origin, Trait ve Memory verileri tamamen temizlendi. Saf performans ve durum kaydý yapar.
+/// Oyunun tï¿½m verilerini JSON formatï¿½nda kalï¿½cï¿½ olarak diske yazar ve okur.
+/// TAM MVP Sï¿½Rï¿½Mï¿½: Origin, Trait ve Memory verileri tamamen temizlendi. Saf performans ve durum kaydï¿½ yapar.
 /// </summary>
 public class SaveManager : MonoBehaviour
 {
@@ -67,7 +66,7 @@ public class SaveManager : MonoBehaviour
 
         GameSaveData data = new GameSaveData();
 
-        // 1. Kimlik ve Takým
+        // 1. Kimlik ve Takï¿½m
         data.playerName = GameManager.Instance.playerName;
         data.playerNationID = StoryManager.Instance.GetString(GameKeys.FLAG_PLAYER_NATION);
         data.playerTeamID = TeamManager.Instance != null && TeamManager.Instance.currentTeam != null ? TeamManager.Instance.currentTeam.id : "";
@@ -87,9 +86,9 @@ public class SaveManager : MonoBehaviour
         data.fame = GameManager.Instance.fame;
         data.relations = GameManager.Instance.relations;
         data.focus = GameManager.Instance.focus;
-        data.lives = GameManager.Instance.currentLives;
+        data.lives = GameManager.Instance.CurrentLives;
 
-        // 4. Ýstatistikler
+        // 4. ï¿½statistikler
         if (StatsManager.Instance != null)
         {
             data.seasonGoals = StatsManager.Instance.seasonGoals;
@@ -98,10 +97,9 @@ public class SaveManager : MonoBehaviour
             data.totalAssists = StatsManager.Instance.totalAssists;
             data.matchesPlayed = StatsManager.Instance.matchesPlayed;
             data.averageRating = StatsManager.Instance.averageRating;
-            data.earnedAwards = new List<string>(StatsManager.Instance.earnedAwards);
         }
 
-        // 5. Oyun Akýþ Hafýzasý
+        // 5. Oyun Akï¿½ï¿½ Hafï¿½zasï¿½
         data.storyFlags = new List<string>(StoryManager.Instance.storyFlags);
 
         data.variableKeys = new List<string>(StoryManager.Instance.storyVariables.Keys);
@@ -125,7 +123,7 @@ public class SaveManager : MonoBehaviour
             string json = File.ReadAllText(saveFilePath);
             GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
 
-            // 1. Kimlik ve Takým
+            // 1. Kimlik ve Takï¿½m
             GameManager.Instance.playerName = data.playerName;
             StoryManager.Instance.SetString(GameKeys.FLAG_PLAYER_NATION, data.playerNationID);
             if (TeamManager.Instance != null && !string.IsNullOrEmpty(data.playerTeamID))
@@ -149,9 +147,9 @@ public class SaveManager : MonoBehaviour
             GameManager.Instance.SetStat("Relations", data.relations);
             GameManager.Instance.SetStat("Focus", data.focus);
 
-            GameManager.Instance.currentLives = data.lives;
+            GameManager.Instance.RestoreLives(data.lives);
 
-            // 4. Ýstatistikler
+            // 4. ï¿½statistikler
             if (StatsManager.Instance != null)
             {
                 StatsManager.Instance.seasonGoals = data.seasonGoals;
@@ -160,10 +158,9 @@ public class SaveManager : MonoBehaviour
                 StatsManager.Instance.totalAssists = data.totalAssists;
                 StatsManager.Instance.matchesPlayed = data.matchesPlayed;
                 StatsManager.Instance.averageRating = data.averageRating == 0 ? 6.0f : data.averageRating;
-                StatsManager.Instance.earnedAwards = data.earnedAwards != null ? new List<string>(data.earnedAwards) : new List<string>();
             }
 
-            // 5. Oyun Akýþ Hafýzasýný Geri Yükleme
+            // 5. Oyun Akï¿½ï¿½ Hafï¿½zasï¿½nï¿½ Geri Yï¿½kleme
             StoryManager.Instance.storyFlags = new HashSet<string>(data.storyFlags);
 
             StoryManager.Instance.storyVariables.Clear();
@@ -178,12 +175,12 @@ public class SaveManager : MonoBehaviour
                 StoryManager.Instance.cardCooldowns.Add(data.cooldownKeys[i], data.cooldownValues[i]);
             }
 
-            Debug.Log("<color=green>[SAVE MANAGER]: MVP Kayýtlý Oyun Baþarýyla Yüklendi!</color>");
+            Debug.Log("<color=green>[SAVE MANAGER]: MVP Kayï¿½tlï¿½ Oyun Baï¿½arï¿½yla Yï¿½klendi!</color>");
             return true;
         }
         catch (System.Exception e)
         {
-            Debug.LogError("[SAVE MANAGER]: Kayýt yüklenirken hata: " + e.Message);
+            Debug.LogError("[SAVE MANAGER]: Kayï¿½t yï¿½klenirken hata: " + e.Message);
             return false;
         }
     }
@@ -198,7 +195,7 @@ public class SaveManager : MonoBehaviour
         if (HasSaveFile())
         {
             File.Delete(saveFilePath);
-            Debug.Log("[SAVE MANAGER]: Kayýt Dosyasý Silindi.");
+            Debug.Log("[SAVE MANAGER]: Kayï¿½t Dosyasï¿½ Silindi.");
         }
     }
 }
