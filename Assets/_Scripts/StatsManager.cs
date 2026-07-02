@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Game.Data;
+using Game.Services;
 
 public class StatsManager : MonoBehaviour
 {

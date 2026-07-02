@@ -302,7 +302,7 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 
 **Katman 1 TAMAMLANDI.**
 
-### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **DEVAM EDİYOR**
+### Katman 2 — `Game.Services` (saf C#, test edilebilir) — **TAMAMLANDI**
 - [x] `StatService.cs` — Tamamlandı: `Assets/_Scripts/Services/StatService.cs` (yeni
       `Services/` klasörü, `Data/` klasörü emsaliyle tutarlı). Saf C# sınıf
       (MonoBehaviour DEĞİL, `GameStateMachine` gibi — sahibi Katman 3'te `GameManager`
@@ -405,9 +405,49 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       kullanıyor; o dosya `GameConstants.Loc.*`'a geçince silinecek. Tek tüketici
       `CardManager.cs` zaten `using Game.Services;` içerdiği ve tipi niteliksiz
       kullandığı için değişmedi.
-- [ ] `MatchSimulator.cs` (büyük ölçüde korunacak, örnek kalitede bir dosya)
-- [ ] `DiceService.cs` (BG3 tarzı zar mantığı, UI'dan ayrılmış)
-- [ ] `SystemCardFactory.cs` (kriz/gameover/UCL synthetic kartları tek yerden üretir)
+- [x] `MatchSimulator.cs` — Tamamlandı: `Assets/_Scripts/MatchSimulator.cs` → `Assets/_Scripts/
+      Services/MatchSimulator.cs` (GUID korunarak `git mv`, `StatService`/`CardRegistry`
+      emsaliyle tutarlı), `Game.Services` namespace'ine alındı, bozuk Türkçe karakterli
+      XML doc yorumları temiz UTF-8 karşılıklarıyla değiştirildi. **Algoritma/mantık hiç
+      değişmedi** — dosya zaten "örnek kalitede" olduğu için yalnızca taşıma + kozmetik
+      temizlik yapıldı. `MatchSimulationConfig` (ScriptableObject) bilinçli olarak global
+      namespace'te bırakıldı (diğer config ScriptableObject'lerle — `CardSwipeConfig` —
+      aynı muamele; bu adımın kapsamı `MatchSimulator`). Tek tüketici `StatsManager.cs`
+      (Katman 3 dosyası) tipi unqualified kullandığı için `using Game.Services;` eklendi
+      — başka hiçbir satır değişmedi.
+- [x] `DiceService.cs` — Tamamlandı: `Assets/_Scripts/Services/DiceService.cs` (yeni).
+      Saf C# sınıf (MonoBehaviour DEĞİL, `StatService`/`MatchSimulator` gibi — sahibi
+      Katman 4'te `DiceManager` olacak). Eski `DiceManager`'daki matematiksel çekirdek
+      (hedef belirleme 10-15, zar 1-20, stat bonus kademeleri, kritik 1/20 kuralları,
+      `total >= target` karşılaştırması) **birebir davranış korunarak** taşındı; yeni
+      `DiceMode` enum'u (`High`/`Low`) eski `mode` string parametresinin ("high"/"low")
+      yerini alıyor, çözüm tek yerde (`DiceService.ParseMode`). Sonuç, UI'nin ihtiyaç
+      duyduğu her alanı taşıyan `readonly struct DiceRoll` olarak dönüyor.
+      **Bilinçli tasarım kararı — dormant + yukarı-bağımlılık yok:** `DiceManager`'ın
+      `GetStatValue` (→ `GameManager`) ve `GetMomentumBonus` (→
+      `StoryManager.GetVariable("ucl_momentum")`) metotları `DiceService`'e taşınmadı;
+      `Resolve(statValue, momentumBonus, mode)` bu değerleri parametre olarak alıyor —
+      `Game.Services`'in `Game.Gameplay`'e (üst katman) bağımlı olmaması kuralı gereği.
+      `DiceManager`'ın kendisi bu adımda değiştirilmedi/bağlanmadı (Katman 4'te UI/animasyon
+      dışındaki tüm mantığını `DiceService`'e devredecek).
+- [x] `SystemCardFactory.cs` — Tamamlandı: `Assets/_Scripts/Services/SystemCardFactory.cs`
+      (yeni, `static` sınıf, durumsuz). Kodda elle kurulan (JSON'dan gelmeyen) 5 synthetic
+      `CardData`'yı tek yerden üretir — eskiden `CardManager` (CRISIS_CARD, GAMEOVER_CARD),
+      `SeasonManager` (ucl_eliminated, dyn_ucl_group_N) ve `UCLManager` (ucl_final_end_node)
+      olmak üzere 3 manager'a dağılmıştı (madde 7-H). Ham string ID/kategori yerine
+      `GameConstants.SystemCardIds.*`/`Categories.*`/`Vars.*` kullanıyor. Üretilen kartlar
+      mevcut inline sürümlerle **birebir aynı** (davranış parity; hardcoded/lokalize
+      edilmemiş kriz-gameover metinleri de dahil — lokalizasyona geçiş ayrı bir iş).
+      **Bilinçli olarak dışarıda bırakılanlar (Katman 3'e):** zincir kurma / havuzdan
+      rastgele seçim (`UCLManager.AddCardIfExists` → `UclFlowController`'a taşınacak), UI
+      yan etkileri (`ApplyTheme`/`ManageBlinkingDisplay`, ilgili manager'da kalacak), kriz
+      çıkışının çift işlenmesi (`CrisisManager`+`CardManager`, madde 7-H, manager
+      rewrite'ında tek sorumluya indirilecek). **Dormant:** `CardManager`/`SeasonManager`/
+      `UCLManager` içindeki inline `new CardData{...}` blokları bu adımda SÖKÜLMEDİ; bu üç
+      manager Katman 3'te yeniden yazılırken (`UCLManager` → `UclFlowController`'a
+      dönüşürken) fabrikaya bağlanacaklar.
+
+**Katman 2 TAMAMLANDI.**
 
 ### Katman 3 — `Game.Gameplay` (manager'lar) — **BEKLİYOR**
 - [ ] `GameManager.cs` (ince koordinatör; Stat/Life/Phase servislerine delege eder)
