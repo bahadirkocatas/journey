@@ -5,10 +5,8 @@ using Game.Data;
 using Game.Core;
 using Game.Services;
 
-public class CardManager : MonoBehaviour
+public class CardManager : Singleton<CardManager>
 {
-    public static CardManager Instance { get; private set; }
-
     [Header("Veri Dosyası")]
     [SerializeField] private TextAsset jsonFile;
 
@@ -37,13 +35,8 @@ public class CardManager : MonoBehaviour
     private string _forcedNextCardID = "";
     private CrisisData _pendingCrisis;
 
-    public int queueCount => _eventQueue.Count;
-
-    private void Awake()
+    protected override void OnSingletonAwake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
-
         _reqService = new RequirementService();
         _registry = new CardRegistry();
         _deckBuilder = new CardDeckBuilder(_registry, _reqService);
@@ -178,14 +171,7 @@ public class CardManager : MonoBehaviour
     {
         _uiHandler?.ManageBlinkingDisplay(crisis.targetStat, true);
 
-        var c = new CardData
-        {
-            id = "CRISIS_CARD",
-            scenarioText = $"<color=#FF5555>KRİZ: {crisis.title}</color>\n\n{crisis.description}",
-            characterImageName = crisis.iconPath,
-            right = new ChoiceData { choiceText = "BEDELİ ÖDE" },
-            left = new ChoiceData { choiceText = "BEDELİ ÖDE" }
-        };
+        var c = SystemCardFactory.CreateCrisisCard(crisis);
         SetCurrentCard(c);
     }
 
@@ -205,14 +191,7 @@ public class CardManager : MonoBehaviour
         isCrisisActive = false;
         _uiHandler?.ApplyTheme(ThemeType.GameOver, true);
 
-        var c = new CardData
-        {
-            id = "GAMEOVER_CARD",
-            scenarioText = $"<color=#888888>SON:</color> {ending.title}\n\n{ending.description}",
-            characterImageName = ending.iconPath,
-            right = new ChoiceData { choiceText = ending.buttonText },
-            left = new ChoiceData { choiceText = ending.buttonText }
-        };
+        var c = SystemCardFactory.CreateGameOverCard(ending);
         SetCurrentCard(c);
     }
 
@@ -227,7 +206,7 @@ public class CardManager : MonoBehaviour
         // requirement/uygunluk cache'i bayatladı.
         _reqService.ClearCache();
 
-        if (processedCard.id == "CRISIS_CARD")
+        if (processedCard.id == GameConstants.SystemCardIds.Crisis)
         {
             ExitCrisisMode();
             return;

@@ -504,8 +504,32 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       `LifeSystem.cs`/`SaveManager.cs`'in kendisi sıfır hata veriyor (yalnızca
       önceden de var olan tarzda zararsız bir `CS0414` uyarısı — kullanılmayan
       `resetValueAfterDeath` alanı, bu adımın kapsamı dışında bırakıldı).
-- [ ] `CardManager.cs` (synthetic üretim dışarı alınmış, `QueueCount`/`queueCount`
-      çiftlemesi giderilmiş)
+- [x] `CardManager.cs` (synthetic üretim dışarı alınmış, `QueueCount`/`queueCount`
+      çiftlemesi giderilmiş) — Tamamlandı: manuel `Instance` yönetimi + `Awake()` →
+      `Singleton<CardManager>` (`GameManager` ile birebir aynı kalıp,
+      `OnSingletonAwake()`'e taşındı). `LoadCrisisCard`/`EnterGameOverMode` içindeki
+      elle kurulan `new CardData{...}` blokları (Katman 2'de yazılmış ama dormant olan)
+      `SystemCardFactory.CreateCrisisCard`/`CreateGameOverCard`'a devredildi — UI yan
+      etkileri (`ManageBlinkingDisplay`/`ApplyTheme`, fabrika saf/durumsuz olduğu için)
+      CardManager'da kaldı. `queueCount` (camelCase, hiç tüketicisi yoktu) silindi,
+      `QueueCount` (tek tüketici `SeasonManager`) korundu. `HandleCardResolved`'daki
+      `"CRISIS_CARD"` magic string'i `GameConstants.SystemCardIds.Crisis`'e taşındı.
+      **Kullanıcı kararı (bu adımda alındı, ertelendi):** `isCrisisActive`/`isGameOver`
+      boolean bayraklarının `GameStateMachine`'e taşınması bilinçli olarak
+      YAPILMADI — `GameState.UclFinal` ile kriz-sırasında-UCL-finali çakışması ve
+      `CrisisManager`'ın (henüz migrate edilmemiş, kendi `activeCrisis`'ini ve çıkış
+      yolunu tutan) koordinasyonu gerektirdiği için bu, `CrisisManager`/
+      `UclFlowController` adımlarına (madde 7-H "tek-çıkış garantisi") bırakıldı.
+      Tüketiciler (`CardController`, `CrisisManager`, `EndingManager`, `SeasonManager`,
+      `UCLManager`) **değişmedi** — hepsi `CardManager.Instance.*` üzerinden erişiyor,
+      public API/davranış birebir korundu. Namespace bilinçli olarak global kaldı
+      (`GameManager` kararıyla tutarlı, tüm Gameplay manager'ları tek koordineli
+      geçişte `Game.Gameplay`'e taşınacak).
+      **Doğrulama:** `dotnet build Assembly-CSharp.csproj` — 35 hata (GameManager
+      adımındaki baseline ile birebir aynı sayı/dosyalar: `StoryManager`,
+      `StatsManager`, `UCLManager`, `CardUIHandler`, `EndingManager`, `TeamManager`,
+      `SeasonManager`, `CardController`, `CrisisManager` — henüz migrate edilmemiş
+      manager'lar). `CardManager.cs`'e ait sıfır hata.
 - [ ] `SeasonManager.cs` (sadece zaman akışı; UCL ve sezon-sonu ayrılmış)
 - [ ] `UclFlowController.cs` (SeasonManager + eski UCLManager'ın UCL mantığı birleşik;
       risk/zar akışı `DiceService`'e gerçekten bağlanacak)
