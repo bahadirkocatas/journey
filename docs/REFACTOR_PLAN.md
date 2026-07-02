@@ -530,10 +530,59 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       `StatsManager`, `UCLManager`, `CardUIHandler`, `EndingManager`, `TeamManager`,
       `SeasonManager`, `CardController`, `CrisisManager` — henüz migrate edilmemiş
       manager'lar). `CardManager.cs`'e ait sıfır hata.
-- [ ] `SeasonManager.cs` (sadece zaman akışı; UCL ve sezon-sonu ayrılmış)
-- [ ] `UclFlowController.cs` (SeasonManager + eski UCLManager'ın UCL mantığı birleşik;
-      risk/zar akışı `DiceService`'e gerçekten bağlanacak)
-- [ ] `SeasonEndEvaluator.cs`
+- [x] `SeasonManager.cs` + `UclFlowController.cs` + `SeasonEndEvaluator.cs` — Tamamlandı
+      (tek koordineli batch olarak ele alındı, fiziksel olarak ayrılamazlardı, bkz. madde
+      13):
+      - **`SeasonEndEvaluator.cs`** (YENİ): eski `SeasonScoring.cs` silindi, yerine bu SAF
+        (yan etkisiz) statik sınıf geldi. `EvaluateUclAndRelegation`/`EvaluateReview`
+        artık `StoryManager`/`GameManager` üzerinde doğrudan yan etki uygulamıyor;
+        `UclAndRelegationResult`/`ReviewResult` (readonly struct) döner, uygulamayı
+        çağıran (`SeasonManager`) yapar. `QualifiedForUcl` bilinçli olarak `bool?` —
+        eski kodda küme düşme sınırının altında ama `activeTier >= 3` (zaten en alt
+        kademe) olduğunda **hiçbir şeye dokunulmuyordu** (flag bile); `null` bu üçüncü
+        hâli (dokunma) korumak için var, `true`/`false` ekle/kaldır anlamına geliyor —
+        bu ayrım fark edilmeseydi o kenar durumda flag'e yanlışlıkla dokunulurdu.
+      - **`UclFlowController.cs`** (eski `UCLManager.cs`, `git mv` ile GUID korunarak
+        yeniden adlandırıldı — sahnedeki `UCLManager` GameObject'inin script binding'i
+        ve serialize alanları [`uclCardsFile`, tema renkleri] bozulmadan yeniden
+        bağlandı, `git diff` ile sahne dosyasında sıfır değişiklik doğrulandı).
+        `MonoBehaviour` + elle `Instance`/`DontDestroyOnLoad` → `Singleton<UclFlowController>`
+        (tek sahne kararıyla tutarlı, `DontDestroyOnLoad` kaldırıldı). Yanlış event adları
+        (`OnUCLFinalTriggered/Completed`) düzeltildi (`GameEvents.OnUclFinalTriggered/
+        OnUclFinalCompleted`) — bu, projenin 35 baseline derleme hatasından ikisiydi.
+        Final bitiş düğümü/grup/eleme kartları artık `SystemCardFactory`'den geliyor
+        (Katman 2'de dormant yazılmıştı). **UCL durumunun TEK doğru kaynağı** artık
+        `IsFinalRunning` (eskiden `UCLManager.isFinalRunning` VE
+        `SeasonManager.isTimeFrozenForUCL` diye iki ayrı bayrak aynı anda tutuluyordu —
+        madde 7 "dağınık boolean bayrak" sorununun bu köşesi kapandı). Yeni public API:
+        `TryHandleSeasonEnd()` (sezon sınırında final tetikleme/eleme/kalan-kuyruk
+        kararını verir, `SeasonManager`'dan taşındı) ve
+        `InjectGroupStageCardsIfQualified()` (sezon başı grup kartı enjeksiyonu,
+        `SeasonManager`'dan taşındı). **Zar/risk bağlantısı bilinçli olarak
+        YAPILMADI** — Katman 4'e (`DiceManager` migrasyonu) ertelendi, bkz. madde 13.1
+        (kullanıcı onayı alındı).
+      - **`SeasonManager.cs`**: `MonoBehaviour` + elle `Instance` → `Singleton<SeasonManager>`.
+        UCL mantığının tamamı (grup enjeksiyonu, final tetikleme, eleme kartı, kuyruk
+        kontrolü) çıkarıldı — `AdvanceWeek` artık dondurma durumunu kendi bayrağı yerine
+        `UclFlowController.IsFinalRunning`'den okuyor; sezon sınırında
+        `UclFlowController.TryHandleSeasonEnd()`'e delege ediyor (aynı katman içi
+        doğrudan çağrı — event değil, çünkü sonucun `EndSeason` çağrılıp
+        çağrılmayacağını senkron belirlemesi gerekiyor). `SeasonScoring.*` çağrıları
+        `SeasonEndEvaluator.*` + yeni `ApplyUclAndRelegationResult`/`ApplyReviewResult`
+        (sonucu uygulayan iki private metot) ile değişti. `GameKeys.*` →
+        `GameConstants.*` (bu vesileyle `OnContractSigned`'daki
+        `SetStat("Relations", 50)` magic string'i de `GameConstants.Stats.Relations`'a
+        çekildi). **Artık gereksizleşen `OnUCLFinalCompleted` aboneliği kaldırıldı** —
+        eski `HandleUCLFinalFinished` yalnızca kendi `isTimeFrozenForUCL` bayrağını
+        sıfırlıyordu; o bayrak artık yok, durum tamamen `UclFlowController`'da
+        yaşıyor, `SeasonManager` her ihtiyaç duyduğunda ona sorup okuyor.
+      **Doğrulama:** `dotnet build Assembly-CSharp.csproj` — bu üç dosyaya ait **sıfır**
+      hata. Toplam hata sayısı 35'ten **27**'ye düştü (SeasonManager + UCLManager'ın
+      önceki 8 hatası temizlendi); kalan 27'nin tamamı henüz migrate edilmemiş
+      `StoryManager`/`StatsManager`/`EndingManager`/`CardUIHandler`/`CardController`/
+      `TeamManager`/`CrisisManager`'a ait (hepsi `GameEvents`'i niteliksiz kullanıyor,
+      kendi Katman 3/4 sırasını bekliyor). Sahne binding'i (`UclFlowController` GUID'i)
+      `git diff` ile doğrulandı, sıfır değişiklik.
 - [ ] `CrisisManager.cs` (Min/Max ayrımı + costsLife + tek-çıkış garantisi)
 - [ ] `CountryManager.cs`
 - [ ] `TeamManager.cs`
@@ -597,7 +646,36 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
 
 ---
 
-## 12. Claude Code Kullanım Notu
+## 13. Plan Sapmaları
+
+### 13.1 — `UclFlowController`: zar/risk bağlantısı Katman 4'e ertelendi
+
+Madde 9'daki `UclFlowController.cs` satırı orijinal olarak "risk/zar akışı `DiceService`'e
+gerçekten bağlanacak" diyordu. `SeasonManager.cs` adımına başlarken (Katman 3) şu tespit
+yapıldı: zar akışı şu an **tamamen kopuk** — `DiceManager.StartDiceRoll` hiçbir yerden
+çağrılmıyor, `ChoiceData.isRisk/riskStat/riskMode` alanları hiçbir kod yolunda okunmuyor.
+Gerçek zar atışını çalıştıran `DiceManager` ise bir **UI bileşeni** (coroutine ile animasyon,
+buton, panel) — madde 8'de "Katman 4'e" (UI) atanmış durumda.
+
+**Karar (kullanıcı onayı alındı):** Zar/risk bağlantısı `UclFlowController`'ın bu adımına
+değil, Katman 4'te `DiceManager` migrasyonuna ertelendi. Gerekçe: `Game.Gameplay` katmanı
+`Game.UI` katmanına bağımlı olamaz (madde 2'deki tek yönlü bağımlılık kuralı); zar akışını
+şimdi bağlamak bu sırayı ihlal ederdi. `UclFlowController` bu adımda yalnızca UCL zincir
+orkestrasyonunu (grup kartları, final tetikleme/zincir, eleme) devralıyor.
+
+### 13.2 — SeasonManager ↔ UclFlowController kontratı
+
+Eski `SeasonManager.CheckSeasonEndState`, UCL final freeze/eleme mantığını (`isTimeFrozenForUCL`
+bayrağı dahil) kendi içinde tutuyordu. Bu adımda UCL durumunun tek sahibi `UclFlowController`
+oldu (`IsFinalRunning`). `SeasonManager` sezon sınırına ulaşınca
+`UclFlowController.Instance?.TryHandleSeasonEnd()` ile delege eder (aynı katman içi doğrudan
+çağrı, event değil — UCL sonucunun sezon-sonu akışını devam ettirip ettirmeyeceği senkron
+bilinmesi gerektiği için). Final bitince `UclFlowController` `GameEvents.OnUclFinalCompleted`
+fırlatır, `SeasonManager` bunu dinleyip sezon-sonu değerlendirmesine devam eder.
+
+---
+
+## 14. Claude Code Kullanım Notu
 
 - Model: `opusplan` (Opus planlar, Sonnet yazar).
 - Her faz: Plan Mode'a gir → bu dosyayı ve ilgili mevcut dosyaları oku → belirsizlik

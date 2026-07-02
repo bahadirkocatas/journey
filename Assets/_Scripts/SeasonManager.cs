@@ -1,14 +1,20 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Core;
 using Game.Data;
 
-public class SeasonManager : MonoBehaviour
+/// <summary>
+/// İnce zaman koordinatörü: takvimi ilerletir, sezon sınırını algılar, deste kurar ve
+/// sezon-sonu/transfer akışını orkestre eder. UCL akışının (grup kartları, final tetikleme/
+/// zincir) sahipliği <see cref="UclFlowController"/>'a, sezon-sonu skor matematiği
+/// <see cref="SeasonEndEvaluator"/>'a devredildi (bkz. REFACTOR_PLAN.md madde 13.2) — bu
+/// dosya artık yalnızca ZAMAN akışından ve bu iki servisin sonuçlarını uygulamaktan
+/// sorumlu.
+/// </summary>
+public class SeasonManager : Singleton<SeasonManager>
 {
-    public static SeasonManager Instance;
-
     [Header("Zaman Motoru")]
     [SerializeField] private SeasonCalendar calendar = new SeasonCalendar();
     public int CalculateContractDuration(int age) => calendar.CalculateContractDuration(age);
@@ -27,38 +33,31 @@ public class SeasonManager : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI textYearInfo;
 
-    private bool isTimeFrozenForUCL = false;
-
     // --- Geriye Dönük Uyumluluk (Facade) ---
     public int currentYear { get => calendar.currentYear; set => calendar.currentYear = value; }
     public int currentWeek { get => calendar.currentWeek; set => calendar.currentWeek = value; }
     public int contractYearsLeft { get => calendar.contractYearsLeft; set => calendar.contractYearsLeft = value; }
     public int weeksPerSeason => calendar.weeksPerSeason;
 
-    private void Awake()
+    protected override void OnSingletonAwake()
     {
-        if (Instance == null) Instance = this;
+        LoadSchedule();
     }
 
     private void Start()
     {
-        LoadSchedule();
         calendar.UpdateUI(textYearInfo);
     }
 
     private void OnEnable()
     {
-        GameEvents.OnUCLFinalCompleted += HandleUCLFinalFinished;
-        GameEvents.OnCardFlowEnded += AdvanceWeek; // 🆕 Yeni bağlantı
+        GameEvents.OnCardFlowEnded += AdvanceWeek;
     }
 
     private void OnDisable()
     {
-        GameEvents.OnUCLFinalCompleted -= HandleUCLFinalFinished;
         GameEvents.OnCardFlowEnded -= AdvanceWeek;
     }
-
-    private void HandleUCLFinalFinished() => isTimeFrozenForUCL = false;
 
     public void StartNewCareer()
     {
@@ -90,7 +89,9 @@ public class SeasonManager : MonoBehaviour
     // ========================================================================
     public void AdvanceWeek()
     {
-        if (isTimeFrozenForUCL)
+        // UCL finali sırasında takvim donar — sadece final zincirinin bir sonraki
+        // kartını yükle. UCL durumunun tek doğru kaynağı UclFlowController'dır.
+        if (UclFlowController.Instance != null && UclFlowController.Instance.IsFinalRunning)
         {
             CardManager.Instance?.LoadNewCard();
             return;
@@ -106,7 +107,7 @@ public class SeasonManager : MonoBehaviour
 
         if (calendar.IsSeasonEnd())
         {
-            CheckSeasonEndState();
+            HandleSeasonEnd();
             return;
         }
 
@@ -114,47 +115,15 @@ public class SeasonManager : MonoBehaviour
         SaveManager.Instance?.SaveGame();
     }
 
-    private void CheckSeasonEndState()
+    /// <summary>
+    /// Sezon sınırına ulaşıldı. Önce UCL'e (final tetikleme/eleme/kalan kuyruk) söz hakkı
+    /// verilir; UCL bu haftaki işi bitirmediğini söylerse (<c>true</c> döner) sezon sonu
+    /// ertelenir, aksi halde gerçekten sona erer.
+    /// </summary>
+    private void HandleSeasonEnd()
     {
-        if (StoryManager.Instance == null) return;
-
-        if (StoryManager.Instance.HasFlag(GameKeys.FLAG_UCL_QUALIFIED))
-        {
-            if (StoryManager.Instance.GetVariable(GameKeys.VAR_UCL_PROGRESS) >= 2)
-            {
-                if (!isTimeFrozenForUCL)
-                {
-                    isTimeFrozenForUCL = true;
-                    GameEvents.OnUCLFinalTriggered?.Invoke();
-                    StoryManager.Instance.SetVariable(GameKeys.VAR_UCL_PROGRESS, 0);
-                    CardManager.Instance?.LoadNewCard();
-                    return;
-                }
-            }
-            else if (!StoryManager.Instance.HasFlag(GameKeys.FLAG_UCL_ELIMINATION_SHOWN))
-            {
-                var failCard = new CardData
-                {
-                    id = "ucl_eliminated",
-                    category = GameKeys.CAT_UCL_GROUP,
-                    scenarioText = "LOK_UCL_ELIMINATED",
-                    characterImageName = "ucl_atmosphere",
-                    right = new ChoiceData { choiceText = "LOK_CONTINUE" },
-                    left = new ChoiceData { choiceText = "LOK_CONTINUE" }
-                };
-                CardManager.Instance?.InjectMilestoneCards(new List<CardData> { failCard }, true);
-                StoryManager.Instance.AddFlag(GameKeys.FLAG_UCL_ELIMINATION_SHOWN);
-                StoryManager.Instance.SetVariable(GameKeys.VAR_UCL_PROGRESS, 0);
-            }
-        }
-
-        if (CardManager.Instance != null && CardManager.Instance.QueueCount > 0)
-            CardManager.Instance.LoadNewCard();
-        else
-        {
-            StoryManager.Instance.RemoveFlag(GameKeys.FLAG_UCL_ELIMINATION_SHOWN);
-            EndSeason();
-        }
+        bool deferred = UclFlowController.Instance != null && UclFlowController.Instance.TryHandleSeasonEnd();
+        if (!deferred) EndSeason();
     }
 
     private void StartNewSeasonRoutine()
@@ -164,38 +133,7 @@ public class SeasonManager : MonoBehaviour
         int seasonIndex = currentYear - calendar.startingAge + 1;
         CardManager.Instance.BuildSeasonDeck(weeksPerSeason);
 
-        // UCL Grup Kartları
-        if (StoryManager.Instance != null && StoryManager.Instance.HasFlag(GameKeys.FLAG_UCL_QUALIFIED))
-        {
-            var uclCards = new List<CardData>();
-            for (int i = 1; i <= 2; i++)
-            {
-                uclCards.Add(new CardData
-                {
-                    id = "dyn_ucl_group_" + i,
-                    category = GameKeys.CAT_UCL_GROUP,
-                    scenarioText = $"Şampiyonlar Ligi eleme maçındasın. Grup {i}/2.",
-                    characterImageName = "ucl_atmosphere",
-                    right = new ChoiceData
-                    {
-                        choiceText = "Takım İçin Savaş",
-                        relations = 10,
-                        focus = -5,
-                        form = -10,
-                        hiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } }
-                    },
-                    left = new ChoiceData
-                    {
-                        choiceText = "Bireysel Oyna",
-                        fame = 10,
-                        relations = -10,
-                        form = -10,
-                        hiddenEffects = new List<HiddenEffect> { new HiddenEffect { variableName = GameKeys.VAR_UCL_PROGRESS, changeAmount = 1 } }
-                    }
-                });
-            }
-            CardManager.Instance.InjectMilestoneCards(uclCards, false);
-        }
+        UclFlowController.Instance?.InjectGroupStageCardsIfQualified();
 
         // Hikaye Kartları
         if (allSchedules != null)
@@ -229,7 +167,9 @@ public class SeasonManager : MonoBehaviour
             int activeTier = TeamManager.Instance.GetActiveTier();
             int basePower = TeamManager.Instance.currentTeam != null ? TeamManager.Instance.currentTeam.power : 50;
 
-            SeasonScoring.EvaluateUCLAndRelegation(seasonScore, activeTier, basePower, scoreForUCLQualification, scoreForRelegation);
+            var uclResult = SeasonEndEvaluator.EvaluateUclAndRelegation(
+                seasonScore, activeTier, basePower, scoreForUCLQualification, scoreForRelegation);
+            ApplyUclAndRelegationResult(uclResult);
         }
 
         calendar.AdvanceYear();
@@ -242,11 +182,42 @@ public class SeasonManager : MonoBehaviour
             TriggerTransferPhase(score, true);
         else
         {
-            SeasonScoring.EvaluateReview(score, scoreForGoodReview, scoreForBadReview);
+            var reviewResult = SeasonEndEvaluator.EvaluateReview(score, scoreForGoodReview, scoreForBadReview);
+            ApplyReviewResult(reviewResult);
             StatsManager.Instance?.ResetSeasonStats();
             calendar.UpdateUI(textYearInfo);
             CardManager.Instance?.LoadNewCard();
         }
+    }
+
+    /// <summary>SeasonEndEvaluator'ın saf sonucunu StoryManager üzerinde uygular (yan etki burada).</summary>
+    private void ApplyUclAndRelegationResult(SeasonEndEvaluator.UclAndRelegationResult result)
+    {
+        if (StoryManager.Instance == null) return;
+
+        if (result.QualifiedForUcl.HasValue)
+        {
+            if (result.QualifiedForUcl.Value)
+                StoryManager.Instance.AddFlag(GameConstants.Flags.UclQualified);
+            else
+                StoryManager.Instance.RemoveFlag(GameConstants.Flags.UclQualified);
+        }
+
+        if (result.TeamTierModDelta != 0)
+            StoryManager.Instance.ModifyVariable(GameConstants.Vars.TeamTierMod, result.TeamTierModDelta);
+
+        if (result.TeamPowerModValue.HasValue)
+            StoryManager.Instance.SetVariable(GameConstants.Vars.TeamPowerMod, result.TeamPowerModValue.Value);
+    }
+
+    /// <summary>SeasonEndEvaluator'ın saf sonucunu GameManager üzerinde uygular (yan etki burada).</summary>
+    private void ApplyReviewResult(SeasonEndEvaluator.ReviewResult result)
+    {
+        if (GameManager.Instance == null) return;
+
+        if (result.MoneyDelta != 0) GameManager.Instance.ApplyStatChange(StatType.Money, result.MoneyDelta);
+        if (result.FameDelta != 0) GameManager.Instance.ApplyStatChange(StatType.Fame, result.FameDelta);
+        if (result.RelationsDelta != 0) GameManager.Instance.ApplyStatChange(StatType.Relations, result.RelationsDelta);
     }
 
     private void TriggerTransferPhase(int score, bool isOptional)
@@ -266,7 +237,7 @@ public class SeasonManager : MonoBehaviour
             TeamManager.Instance?.SetPlayerTeam(newTeam.id);
             GameManager.Instance.ApplyStatChange(StatType.Money, 20);
             GameManager.Instance.ApplyStatChange(StatType.Fame, 10);
-            GameManager.Instance.SetStat("Relations", 50);
+            GameManager.Instance.SetStat(GameConstants.Stats.Relations, 50);
         }
         else
         {
