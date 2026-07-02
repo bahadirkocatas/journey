@@ -375,7 +375,17 @@ CareerSummaryUI, TransferUIManager, ResourceDisplay, SnapToItem.
       eklendi ve yukarıdaki kuyruk-yolu/cache-invalidation değişiklikleri yapıldı — bu
       dokunuşlar mekanik/minimal, önceki katman adımlarındaki `using` ekleme kalıbıyla
       aynı türden, `CardManager`'ın kendisi henüz yeniden yazılmadı.
-- [ ] `CardRegistry.cs`
+- [x] `CardRegistry.cs` — Tamamlandı: `Assets/_Scripts/CardRegistry.cs` → `Assets/_Scripts/
+      Services/CardRegistry.cs` (GUID korunarak `git mv`), `Game.Services` namespace'ine
+      alındı (`StatService`/`RequirementService` emsaliyle tutarlı), gereksiz `using
+      Game.Services;` (kendi namespace'i) kaldırıldı, bozuk Türkçe karakter (`hatas�`)
+      düzeltildi. `GetValidCards` artık `reqService.IsCardEligible(c, bypassCooldown:
+      false)` çağırıyor — havuz seçimi olduğu için cooldown açıkça uygulanıyor. Bunun
+      için `RequirementService.IsCardEligible`'a defaultlu `bool bypassCooldown = false`
+      parametresi eklendi (`CardManager.cs:139`'daki tek argümanlı çağrı default sayesinde
+      değişmeden çalışıyor, davranışı aynı kalıyor). `CardManager.cs` ve
+      `CardDeckBuilder.cs` zaten `using Game.Services;` içerdiği için namespace
+      değişiminden etkilenmediler, dokunulmadı.
 - [ ] `CardDeckBuilder.cs` (cooldown + requirement filtresi gerçekten bağlanacak)
 - [ ] `MatchSimulator.cs` (büyük ölçüde korunacak, örnek kalitede bir dosya)
 - [ ] `DiceService.cs` (BG3 tarzı zar mantığı, UI'dan ayrılmış)

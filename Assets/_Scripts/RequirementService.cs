@@ -34,17 +34,17 @@ namespace Game.Services
 
         /// <summary>
         /// Bir kartın deste havuzunda/kuyrukta seçilebilir olup olmadığını belirler:
-        /// requirement'ları geçmeli VE cooldown'da olmamalı. Cooldown her çağrıda canlı
-        /// değerlendirilir (cache'e girmez).
+        /// requirement'ları geçmeli VE (<paramref name="bypassCooldown"/> false ise)
+        /// cooldown'da olmamalı. Cooldown her çağrıda canlı değerlendirilir (cache'e girmez).
         ///
         /// Not: <c>successCardID</c> ile zorlanan zincir devam kartları bu metottan
         /// GEÇMEZ — onlar bilinçli olarak <see cref="CheckRequirements"/>'ı doğrudan
         /// kullanır ve cooldown'ı bypass eder (anlatı akışı kesilmesin diye).
         /// </summary>
-        public bool IsCardEligible(CardData card)
+        public bool IsCardEligible(CardData card, bool bypassCooldown = false)
         {
             if (card == null) return false;
-            if (StoryManager.Instance != null && StoryManager.Instance.IsOnCooldown(card.id))
+            if (!bypassCooldown && StoryManager.Instance != null && StoryManager.Instance.IsOnCooldown(card.id))
                 return false;
 
             return CheckRequirements(card.requirements, $"card_{card.id}");
