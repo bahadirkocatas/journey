@@ -44,3 +44,7 @@ crashlytics-build.properties
 Thumbs.db
 # Unity build artifacts
 *_BurstDebugInformation_DoNotShip/
+
+# Local AI assistant notes
+CLAUDE.md
+docs/REFACTOR_PLAN.md

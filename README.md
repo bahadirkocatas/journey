@@ -12,6 +12,8 @@ Live a footballer's whole career, one decision at a time.</p>
 <img src="https://img.shields.io/badge/C%23-24292f?style=flat-square&logo=dotnet&logoColor=white" alt="C#"/>
 </p>
 
+<p><a href="https://bahadirkocatas.itch.io/journey-football-career"><img src="https://img.shields.io/badge/Play%20on%20itch.io-FA5C5C?style=for-the-badge&logo=itchdotio&logoColor=white" alt="Play on itch.io"/></a></p>
+
 <img src="docs/media/gameplay.gif" alt="Swiping through career cards" width="240"/>
 <img src="docs/media/crisis.png" alt="A crisis card" width="240"/>
 <img src="docs/media/career.png" alt="Player profile and career history" width="240"/>
@@ -53,7 +55,7 @@ flowchart LR
 | Content in JSON, read with Newtonsoft.Json | Cards, clubs, crises and endings are data. Card categories are strings, so new ones can be added without code changes |
 | `Singleton<T>` and `PersistentSingleton<T>` | Every manager follows the same lifecycle |
 
-> **Status:** The project is in the middle of a planned refactor toward this architecture. The data and service layers are done and the gameplay layer is in progress. The plan and its progress are tracked in [`docs/REFACTOR_PLAN.md`](docs/REFACTOR_PLAN.md).
+> **Status:** The project is in the middle of a planned refactor toward this architecture. The data and service layers are done and the gameplay layer is in progress.
 
 ## Running the project
 
