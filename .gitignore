@@ -42,3 +42,5 @@ crashlytics-build.properties
 # ===== İşletim sistemi dosyaları =====
 .DS_Store
 Thumbs.db
+# Unity build artifacts
+*_BurstDebugInformation_DoNotShip/
